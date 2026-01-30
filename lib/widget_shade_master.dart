@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
@@ -80,7 +81,7 @@ class ShadeMasterState extends State<ShadeMaster> {
                 key: _imageKey,
                 children: [
                   Positioned.fill(
-                      child: Image.file(File(widget.img.path),
+                      child: kIsWeb ? Image.network(widget.img.path) : Image.file(File(widget.img.path),
                           fit: BoxFit.contain)),
                   Positioned.fill(
                     child: _showAreas
