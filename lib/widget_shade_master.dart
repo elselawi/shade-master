@@ -3,14 +3,12 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:convex_hull/convex_hull.dart';
 import 'package:shadesmaster/analysis/analyze.dart';
 import 'package:shadesmaster/drawings.dart';
 import 'package:shadesmaster/utils/int_to_letter.dart';
 import 'package:shadesmaster/widget_pill.dart';
 import 'package:shadesmaster/widget_selection_painter.dart';
 import 'package:shadesmaster/widget_toolbar_button.dart';
-import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 enum SelectionType { none, teeth, shades }
 
@@ -29,6 +27,8 @@ class ShadeMasterState extends State<ShadeMaster> {
   Stroke _currentStroke = Stroke([]);
   final List<List<Region>> _allRegions = [[], []];
   final GlobalKey _imageKey = GlobalKey();
+  final transformationController = TransformationController();
+  double scale = 1;
   SelectionType _activeSelecting = SelectionType.none;
   bool _isAnalyzing = false;
   bool _showAreas = true;
@@ -53,24 +53,8 @@ class ShadeMasterState extends State<ShadeMaster> {
   void _onPanEnd(DragEndDetails details) {
     if (_activeSelecting == SelectionType.none) return;
     final stroke = Stroke(_currentStroke.offsets);
-    int? touchingRegionIndex;
-
-    for (int i = 0; i < _regions.length; i++) {
-      if (_arePathsTouching(_regions[i].offsets, stroke.offsets)) {
-        touchingRegionIndex = i;
-        break;
-      }
-    }
-
     setState(() {
-      if (touchingRegionIndex != null) {
-        final combined = _regions[touchingRegionIndex].offsets + stroke.offsets;
-        final points = combined.map((p) => Vector2(p.globalOffset.dx, p.globalOffset.dy)).toList();
-        final hullPoints = convexHull<Vector2>(points, x: (v) => v.x, y: (v) => v.y);
-        _regions[touchingRegionIndex].offsets = hullPoints.map((v) => GlobalOffset(Offset(v.x, v.y))).toList();
-      } else {
-        _regions.add(Region(stroke.offsets));
-      }
+      _regions.add(Region(stroke.offsets));
       _currentStroke = Stroke([]);
     });
   }
@@ -84,12 +68,20 @@ class ShadeMasterState extends State<ShadeMaster> {
             InteractiveViewer(
               maxScale: 200,
               minScale: 0.5,
+              transformationController: transformationController,
               panEnabled: _activeSelecting == SelectionType.none,
               scaleEnabled: _activeSelecting == SelectionType.none,
+              onInteractionEnd: (_) {
+                setState(() {
+                  scale = transformationController.value.getMaxScaleOnAxis();
+                });
+              },
               child: Stack(
                 key: _imageKey,
                 children: [
-                  Positioned.fill(child: Image.file(File(widget.img.path), fit: BoxFit.contain)),
+                  Positioned.fill(
+                      child: Image.file(File(widget.img.path),
+                          fit: BoxFit.contain)),
                   Positioned.fill(
                     child: _showAreas
                         ? GestureDetector(
@@ -98,20 +90,23 @@ class ShadeMasterState extends State<ShadeMaster> {
                             onPanEnd: _onPanEnd,
                             child: IgnorePointer(
                               ignoring: _activeSelecting == SelectionType.none,
-                              child: LayoutBuilder(builder: (context, constraints) {
-                                final renderObject = _imageKey.currentContext?.findRenderObject();
+                              child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                final renderObject = _imageKey.currentContext
+                                    ?.findRenderObject();
                                 if (renderObject is! RenderBox) {
-                                  return const SizedBox.shrink(); // or some placeholder/error widget
+                                  return const SizedBox
+                                      .shrink(); // or some placeholder/error widget
                                 }
                                 final renderBox = renderObject;
                                 return CustomPaint(
                                   painter: SelectionPainter(
-                                    teethRegions: _allRegions[0],
-                                    shadesRegions: _allRegions[1],
-                                    currentStroke: _currentStroke,
-                                    activeType: _activeSelecting,
-                                    renderBox: renderBox,
-                                  ),
+                                      teethRegions: _allRegions[0],
+                                      shadesRegions: _allRegions[1],
+                                      currentStroke: _currentStroke,
+                                      activeType: _activeSelecting,
+                                      renderBox: renderBox,
+                                      resolution: scale),
                                 );
                               }),
                             ),
@@ -147,10 +142,10 @@ class ShadeMasterState extends State<ShadeMaster> {
             child: Container(
               padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: .2),
                 borderRadius: BorderRadius.circular(5),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: .3),
                   width: 1.5,
                 ),
               ),
@@ -164,7 +159,9 @@ class ShadeMasterState extends State<ShadeMaster> {
                         IconButton(
                           isSelected: !_showAreas,
                           color: Colors.black87,
-                          style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(Colors.white24)),
+                          style: ButtonStyle(
+                              backgroundColor:
+                                  WidgetStatePropertyAll(Colors.white24)),
                           onPressed: () {
                             setState(() {
                               _showAreas = !_showAreas;
@@ -212,7 +209,9 @@ class ShadeMasterState extends State<ShadeMaster> {
                         onPress: () {
                           setState(() {
                             _activeSelecting =
-                                _activeSelecting == SelectionType.teeth ? SelectionType.none : SelectionType.teeth;
+                                _activeSelecting == SelectionType.teeth
+                                    ? SelectionType.none
+                                    : SelectionType.teeth;
                             _showAreas = true;
                           });
                         },
@@ -225,22 +224,27 @@ class ShadeMasterState extends State<ShadeMaster> {
                         onPress: () {
                           setState(() {
                             _activeSelecting =
-                                _activeSelecting == SelectionType.shades ? SelectionType.none : SelectionType.shades;
+                                _activeSelecting == SelectionType.shades
+                                    ? SelectionType.none
+                                    : SelectionType.shades;
                             _showAreas = true;
                           });
                         },
                         activeColor: shadesColor,
                       ),
-                      if (_allRegions[0].isNotEmpty && _allRegions[1].isNotEmpty)
+                      if (_allRegions[0].isNotEmpty &&
+                          _allRegions[1].isNotEmpty)
                         ToolbarButton(
                           icon: HugeIcons.strokeRoundedMarketAnalysis,
                           label: "Start Analyze",
                           isActive: false,
                           onPress: () async {
-                            final renderObject = _imageKey.currentContext?.findRenderObject();
+                            final renderObject =
+                                _imageKey.currentContext?.findRenderObject();
                             final renderBox = renderObject as RenderBox?;
                             setState(() => _isAnalyzing = true);
-                            final results = await analyze(_allRegions[0], _allRegions[1], widget.img.path, renderBox!);
+                            final results = await analyze(_allRegions[0],
+                                _allRegions[1], widget.img.path, renderBox!);
                             showResultsDialog(results);
                             setState(() => _isAnalyzing = false);
                           },
@@ -294,8 +298,11 @@ class ShadeMasterState extends State<ShadeMaster> {
                         ],
                       ),
                       title: Text('Shade ${results[index].name}'),
-                      subtitle: Text('Similarity: ${results[index].similarity}%'),
-                      trailing: results[index].winner ? Text("Winner") : SizedBox.shrink(),
+                      subtitle:
+                          Text('Similarity: ${results[index].similarity}%'),
+                      trailing: results[index].winner
+                          ? Text("Winner")
+                          : SizedBox.shrink(),
                     ),
                   );
                 })),
@@ -308,13 +315,4 @@ class ShadeMasterState extends State<ShadeMaster> {
       ),
     );
   }
-}
-
-bool _arePathsTouching(List<GlobalOffset> a, List<GlobalOffset> b, {double threshold = 2}) {
-  for (final pa in a) {
-    for (final pb in b) {
-      if ((pa.globalOffset - pb.globalOffset).distance < threshold) return true;
-    }
-  }
-  return false;
 }

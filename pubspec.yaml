@@ -13,8 +13,6 @@ dependencies:
   cupertino_icons: ^1.0.8
   image_picker: ^1.1.2
   image: ^4.2.0
-  convex_hull: ^1.1.2
-  vector_math: ^2.1.4
   hugeicons: ^0.0.11
 
 

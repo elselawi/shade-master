@@ -8,6 +8,7 @@ class SelectionPainter extends CustomPainter {
   final Stroke currentStroke;
   final SelectionType activeType;
   final RenderBox renderBox;
+  final double resolution;
 
   SelectionPainter({
     required this.teethRegions,
@@ -15,16 +16,17 @@ class SelectionPainter extends CustomPainter {
     required this.currentStroke,
     required this.activeType,
     required this.renderBox,
+    required this.resolution,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paintTeeth = Paint()
-      ..color = teethColor.withOpacity(0.4)
+      ..color = teethColor.withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
 
     final paintShades = Paint()
-      ..color = shadesColor.withOpacity(0.4)
+      ..color = shadesColor.withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
 
     // Draw teeth regions with numbers
@@ -60,18 +62,18 @@ class SelectionPainter extends CustomPainter {
 
     // Draw current stroke
     final currentPaint = Paint()
-      ..color = (activeType == SelectionType.teeth ? teethColor : shadesColor).withOpacity(0.4)
+      ..color = (activeType == SelectionType.teeth ? teethColor : shadesColor).withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
 
     for (final point in currentStroke.getScreenOffset(renderBox)) {
-      canvas.drawCircle(point, 4, currentPaint);
+      canvas.drawCircle(point, 4 / resolution, currentPaint);
     }
   }
 
   void _drawText(Canvas canvas, String text, Offset position) {
     final textSpan = TextSpan(
       text: text,
-      style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+      style: TextStyle(color: Colors.black, fontSize: 20 / resolution, fontWeight: FontWeight.bold),
     );
     final textPainter = TextPainter(
       text: textSpan,

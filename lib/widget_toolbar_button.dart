@@ -25,7 +25,7 @@ class ToolbarButton extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           decoration: BoxDecoration(
-            color: isActive ? activeColor.withOpacity(0.2) : Colors.transparent,
+            color: isActive ? activeColor.withValues(alpha: 0.2) : Colors.transparent,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: isActive ? activeColor : Colors.transparent, width: 1.5),
           ),
