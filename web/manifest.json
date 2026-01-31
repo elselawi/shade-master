@@ -1,6 +1,6 @@
 {
-    "name": "shades",
-    "short_name": "shades",
+    "name": "shadesmaster",
+    "short_name": "shadesmaster",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#ffffff",
