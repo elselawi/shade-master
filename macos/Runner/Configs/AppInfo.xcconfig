@@ -8,7 +8,7 @@
 PRODUCT_NAME = shades
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = app.apexo.shadesmaster
+PRODUCT_BUNDLE_IDENTIFIER = app.apexo.shade
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2025 Apexo. All rights reserved.
