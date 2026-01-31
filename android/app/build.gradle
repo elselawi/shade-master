@@ -30,7 +30,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "app.apexo.shade"
+    namespace = "app.apexo.shadesmaster"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -40,7 +40,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "app.apexo.shade"
+        applicationId = "app.apexo.shadesmaster"
         minSdkVersion = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
