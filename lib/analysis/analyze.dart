@@ -1,5 +1,5 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:shadesmaster/analysis/comparison.dart';
 import 'package:shadesmaster/drawings.dart';
 import 'package:shadesmaster/utils/int_to_letter.dart';
@@ -33,11 +33,11 @@ import 'package:shadesmaster/utils/unit_8_img.dart';
 Future<List<ShadeResult>> analyze(
   List<Region> teethRegions,
   List<Region> shadesRegions,
-  String imgPath,
+  Uint8List img,
   RenderBox renderBox,
 ) async {
   // load the image to get all pixel data
-  final unit8Img = await loadUnit8ImgFromBytes(await XFile(imgPath).readAsBytes());
+  final unit8Img = await loadUnit8ImgFromBytes(img);
 
   // extract all dental colors into a single palette
   final List<LabColor> dentalColors = [];

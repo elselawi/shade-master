@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shadesmaster/widget_shade_master.dart';
@@ -32,16 +34,20 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  XFile? imgPicked;
+  Uint8List? imgPicked;
 
-  pickImage(bool camera) async {
-    final target = await ImagePicker().pickImage(source: camera ? ImageSource.camera : ImageSource.gallery);
-    setState(() {
-      imgPicked = target;
-    });
+  void pickImage(bool camera) async {
+    final target = await ImagePicker()
+        .pickImage(source: camera ? ImageSource.camera : ImageSource.gallery);
+    if (target != null) {
+      final loadedImg = await target.readAsBytes();
+      setState(() {
+        imgPicked = loadedImg;
+      });
+    }
   }
 
-  closeImage() {
+  void closeImage() {
     setState(() {
       imgPicked = null;
     });
@@ -61,10 +67,12 @@ class _MainPageState extends State<MainPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("Welcome to Shade Master", style: TextStyle(fontSize: 20)),
+                    Text("Welcome to Shade Master",
+                        style: TextStyle(fontSize: 20)),
                     SizedBox(height: 10),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(16), // adjust the radius
+                      borderRadius:
+                          BorderRadius.circular(16), // adjust the radius
                       child: Image.asset(
                         'assets/icon/app_icon.png',
                         width: 200,
@@ -75,7 +83,9 @@ class _MainPageState extends State<MainPage> {
                     SizedBox(height: 10),
                     buildPickerButtons(),
                     SizedBox(height: 25),
-                    Text("Shade Master Version 1.0 /// Developed by Dr. Ali A. Saleem", style: TextStyle(fontSize: 11)),
+                    Text(
+                        "Shade Master Version 1.0 /// Developed by Dr. Ali A. Saleem",
+                        style: TextStyle(fontSize: 11)),
                   ],
                 ),
               ),
@@ -89,7 +99,8 @@ class _MainPageState extends State<MainPage> {
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text("Start with a photo that shows both the teeth and the closest shades"),
+          child: Text(
+              "Start with a photo that shows both the teeth and the closest shades"),
         ),
         SizedBox(height: 10),
         Row(

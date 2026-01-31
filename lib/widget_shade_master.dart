@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:shadesmaster/analysis/analyze.dart';
 import 'package:shadesmaster/drawings.dart';
 import 'package:shadesmaster/utils/int_to_letter.dart';
@@ -17,7 +15,7 @@ const teethColor = Colors.tealAccent;
 const shadesColor = Colors.purple;
 
 class ShadeMaster extends StatefulWidget {
-  final XFile img;
+  final Uint8List img;
   final VoidCallback onClose;
   @override
   ShadeMasterState createState() => ShadeMasterState();
@@ -66,55 +64,60 @@ class ShadeMasterState extends State<ShadeMaster> {
       builder: (context, constraints) {
         return Stack(
           children: [
-            InteractiveViewer(
-              maxScale: 200,
-              minScale: 0.5,
-              transformationController: transformationController,
-              panEnabled: _activeSelecting == SelectionType.none,
-              scaleEnabled: _activeSelecting == SelectionType.none,
-              onInteractionEnd: (_) {
-                setState(() {
-                  scale = transformationController.value.getMaxScaleOnAxis();
-                });
-              },
-              child: Stack(
-                key: _imageKey,
-                children: [
-                  Positioned.fill(
-                      child: kIsWeb ? Image.network(widget.img.path) : Image.file(File(widget.img.path),
-                          fit: BoxFit.contain)),
-                  Positioned.fill(
-                    child: _showAreas
-                        ? GestureDetector(
-                            onPanStart: _onPanStart,
-                            onPanUpdate: _onPanUpdate,
-                            onPanEnd: _onPanEnd,
-                            child: IgnorePointer(
-                              ignoring: _activeSelecting == SelectionType.none,
-                              child: LayoutBuilder(
-                                  builder: (context, constraints) {
-                                final renderObject = _imageKey.currentContext
-                                    ?.findRenderObject();
-                                if (renderObject is! RenderBox) {
-                                  return const SizedBox
-                                      .shrink(); // or some placeholder/error widget
-                                }
-                                final renderBox = renderObject;
-                                return CustomPaint(
-                                  painter: SelectionPainter(
-                                      teethRegions: _allRegions[0],
-                                      shadesRegions: _allRegions[1],
-                                      currentStroke: _currentStroke,
-                                      activeType: _activeSelecting,
-                                      renderBox: renderBox,
-                                      resolution: scale),
-                                );
-                              }),
-                            ),
-                          )
-                        : SizedBox.shrink(),
-                  ),
-                ],
+            RepaintBoundary(
+              child: InteractiveViewer(
+                maxScale: 200,
+                minScale: 0.5,
+                transformationController: transformationController,
+                panEnabled: _activeSelecting == SelectionType.none,
+                scaleEnabled: _activeSelecting == SelectionType.none,
+                onInteractionEnd: (_) {
+                  setState(() {
+                    scale = transformationController.value.getMaxScaleOnAxis();
+                  });
+                },
+                child: Stack(
+                  key: _imageKey,
+                  children: [
+                    Positioned.fill(
+                        child: Image.memory(
+                      widget.img,
+                      fit: BoxFit.contain,
+                    )),
+                    Positioned.fill(
+                      child: _showAreas
+                          ? GestureDetector(
+                              onPanStart: _onPanStart,
+                              onPanUpdate: _onPanUpdate,
+                              onPanEnd: _onPanEnd,
+                              child: IgnorePointer(
+                                ignoring:
+                                    _activeSelecting == SelectionType.none,
+                                child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                  final renderObject = _imageKey.currentContext
+                                      ?.findRenderObject();
+                                  if (renderObject is! RenderBox) {
+                                    return const SizedBox
+                                        .shrink(); // or some placeholder/error widget
+                                  }
+                                  final renderBox = renderObject;
+                                  return CustomPaint(
+                                    painter: SelectionPainter(
+                                        teethRegions: _allRegions[0],
+                                        shadesRegions: _allRegions[1],
+                                        currentStroke: _currentStroke,
+                                        activeType: _activeSelecting,
+                                        renderBox: renderBox,
+                                        resolution: scale),
+                                  );
+                                }),
+                              ),
+                            )
+                          : SizedBox.shrink(),
+                    ),
+                  ],
+                ),
               ),
             ),
             buildToolbar(constraints),
@@ -250,7 +253,7 @@ class ShadeMasterState extends State<ShadeMaster> {
                             final renderBox = renderObject as RenderBox?;
                             setState(() => _isAnalyzing = true);
                             final results = await analyze(_allRegions[0],
-                                _allRegions[1], widget.img.path, renderBox!);
+                                _allRegions[1], widget.img, renderBox!);
                             showResultsDialog(results);
                             setState(() => _isAnalyzing = false);
                           },

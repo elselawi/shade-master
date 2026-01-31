@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ToolbarButton extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String label;
   final bool isActive;
   final Color activeColor;
@@ -32,7 +32,7 @@ class ToolbarButton extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: Colors.black),
+              icon,
               const SizedBox(height: 4),
               Text(
                 label,
