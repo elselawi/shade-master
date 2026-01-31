@@ -171,8 +171,10 @@ class ShadeMasterState extends State<ShadeMaster> {
                               }
                             });
                           },
-                          selectedIcon: Icon(HugeIcons.strokeRoundedView),
-                          icon: Icon(HugeIcons.strokeRoundedViewOffSlash),
+                          selectedIcon:
+                              HugeIcon(icon: HugeIcons.strokeRoundedView),
+                          icon: HugeIcon(
+                              icon: HugeIcons.strokeRoundedViewOffSlash),
                         ),
                         SizedBox(width: 15),
                         Flexible(
@@ -204,7 +206,8 @@ class ShadeMasterState extends State<ShadeMaster> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ToolbarButton(
-                        icon: HugeIcons.strokeRoundedDentalTooth,
+                        icon:
+                            HugeIcon(icon: HugeIcons.strokeRoundedDentalTooth),
                         label: "Draw Teeth",
                         isActive: _activeSelecting == SelectionType.teeth,
                         onPress: () {
@@ -219,7 +222,8 @@ class ShadeMasterState extends State<ShadeMaster> {
                         activeColor: teethColor,
                       ),
                       ToolbarButton(
-                        icon: HugeIcons.strokeRoundedPinLocation02,
+                        icon: HugeIcon(
+                            icon: HugeIcons.strokeRoundedPinLocation02),
                         label: "Draw Shades",
                         isActive: _activeSelecting == SelectionType.shades,
                         onPress: () {
@@ -236,7 +240,8 @@ class ShadeMasterState extends State<ShadeMaster> {
                       if (_allRegions[0].isNotEmpty &&
                           _allRegions[1].isNotEmpty)
                         ToolbarButton(
-                          icon: HugeIcons.strokeRoundedMarketAnalysis,
+                          icon: HugeIcon(
+                              icon: HugeIcons.strokeRoundedMarketAnalysis),
                           label: "Start Analyze",
                           isActive: false,
                           onPress: () async {
@@ -252,7 +257,7 @@ class ShadeMasterState extends State<ShadeMaster> {
                           activeColor: Colors.orange,
                         ),
                       ToolbarButton(
-                        icon: HugeIcons.strokeRoundedLogout02,
+                        icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout02),
                         label: "Close image",
                         isActive: false,
                         onPress: widget.onClose,
