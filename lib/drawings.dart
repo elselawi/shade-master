@@ -118,7 +118,7 @@ class Region extends Stroke {
     }
     final justSorted = getSortedLabColors(unit8Img, renderBox);
     final medianColor = justSorted[(justSorted.length / 2).floor()];
-    final result = justSorted.where((labColor) => deltaE(labColor, medianColor) < 0.05).toList();
+    final result = justSorted.where((labColor) => deltaE(labColor, medianColor) < 1).toList();
     _cachedSortedPrunedLabs = result;
     return result;
   }
