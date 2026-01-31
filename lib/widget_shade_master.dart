@@ -23,7 +23,7 @@ class ShadeMaster extends StatefulWidget {
 }
 
 class ShadeMasterState extends State<ShadeMaster> {
-  Stroke _currentStroke = Stroke([]);
+  final ValueNotifier<Stroke> _strokeNotifier = ValueNotifier(Stroke([]));
   final List<List<Region>> _allRegions = [[], []];
   final GlobalKey _imageKey = GlobalKey();
   final transformationController = TransformationController();
@@ -38,23 +38,23 @@ class ShadeMasterState extends State<ShadeMaster> {
   void _onPanStart(DragStartDetails details) {
     if (_activeSelecting == SelectionType.none) return;
     setState(
-      () => _currentStroke = Stroke([GlobalOffset(details.globalPosition)]),
+      () => _strokeNotifier.value = Stroke([GlobalOffset(details.globalPosition)]),
     );
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
     if (_activeSelecting == SelectionType.none) return;
     setState(() {
-      _currentStroke.offsets.add(GlobalOffset(details.globalPosition));
+      _strokeNotifier.value = Stroke([..._strokeNotifier.value.offsets, GlobalOffset(details.globalPosition)]);
     });
   }
 
   void _onPanEnd(DragEndDetails details) {
     if (_activeSelecting == SelectionType.none) return;
-    final stroke = Stroke(_currentStroke.offsets);
+    final stroke = Stroke(_strokeNotifier.value.offsets);
     setState(() {
       _regions.add(Region(stroke.offsets));
-      _currentStroke = Stroke([]);
+      _strokeNotifier.value = Stroke([]);
     });
   }
 
@@ -64,60 +64,63 @@ class ShadeMasterState extends State<ShadeMaster> {
       builder: (context, constraints) {
         return Stack(
           children: [
-            RepaintBoundary(
-              child: InteractiveViewer(
-                maxScale: 200,
-                minScale: 0.5,
-                transformationController: transformationController,
-                panEnabled: _activeSelecting == SelectionType.none,
-                scaleEnabled: _activeSelecting == SelectionType.none,
-                onInteractionEnd: (_) {
-                  setState(() {
-                    scale = transformationController.value.getMaxScaleOnAxis();
-                  });
-                },
-                child: Stack(
-                  key: _imageKey,
-                  children: [
-                    Positioned.fill(
-                        child: Image.memory(
-                      widget.img,
-                      fit: BoxFit.contain,
-                    )),
-                    Positioned.fill(
-                      child: _showAreas
-                          ? GestureDetector(
-                              onPanStart: _onPanStart,
-                              onPanUpdate: _onPanUpdate,
-                              onPanEnd: _onPanEnd,
-                              child: IgnorePointer(
-                                ignoring:
-                                    _activeSelecting == SelectionType.none,
-                                child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                  final renderObject = _imageKey.currentContext
-                                      ?.findRenderObject();
-                                  if (renderObject is! RenderBox) {
-                                    return const SizedBox
-                                        .shrink(); // or some placeholder/error widget
-                                  }
-                                  final renderBox = renderObject;
-                                  return CustomPaint(
-                                    painter: SelectionPainter(
+            InteractiveViewer(
+              maxScale: 200,
+              minScale: 0.5,
+              transformationController: transformationController,
+              panEnabled: _activeSelecting == SelectionType.none,
+              scaleEnabled: _activeSelecting == SelectionType.none,
+              onInteractionEnd: (_) {
+                setState(() {
+                  scale = transformationController.value.getMaxScaleOnAxis();
+                });
+              },
+              child: Stack(
+                key: _imageKey,
+                children: [
+                  Positioned.fill(
+                      child: Image.memory(
+                    widget.img,
+                    fit: BoxFit.contain,
+                  )),
+                  Positioned.fill(
+                    child: _showAreas
+                        ? GestureDetector(
+                            onPanStart: _onPanStart,
+                            onPanUpdate: _onPanUpdate,
+                            onPanEnd: _onPanEnd,
+                            child: IgnorePointer(
+                              ignoring: _activeSelecting == SelectionType.none,
+                              child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                final renderObject = _imageKey.currentContext
+                                    ?.findRenderObject();
+                                if (renderObject is! RenderBox) {
+                                  return const SizedBox
+                                      .shrink(); // or some placeholder/error widget
+                                }
+                                final renderBox = renderObject;
+                                return ValueListenableBuilder(
+                                  valueListenable: _strokeNotifier,
+                                  builder: (context, stroke, child) {
+                                    return CustomPaint(
+                                      painter: SelectionPainter(
                                         teethRegions: _allRegions[0],
                                         shadesRegions: _allRegions[1],
-                                        currentStroke: _currentStroke,
+                                        currentStroke: stroke,
                                         activeType: _activeSelecting,
                                         renderBox: renderBox,
-                                        resolution: scale),
-                                  );
-                                }),
-                              ),
-                            )
-                          : SizedBox.shrink(),
-                    ),
-                  ],
-                ),
+                                        resolution: scale,
+                                      ),
+                                    );
+                                  }
+                                );
+                              }),
+                            ),
+                          )
+                        : SizedBox.shrink(),
+                  ),
+                ],
               ),
             ),
             buildToolbar(constraints),
