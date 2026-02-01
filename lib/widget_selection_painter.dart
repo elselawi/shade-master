@@ -38,8 +38,12 @@ class SelectionPainter extends CustomPainter {
       canvas.drawPath(path, paintTeeth..color);
 
       // Calculate centroid
-      double centroidX = screenOffsets.map((offset) => offset.dx).reduce((a, b) => a + b) / screenOffsets.length;
-      double centroidY = screenOffsets.map((offset) => offset.dy).reduce((a, b) => a + b) / screenOffsets.length;
+      double centroidX =
+          screenOffsets.map((offset) => offset.dx).reduce((a, b) => a + b) /
+              screenOffsets.length;
+      double centroidY =
+          screenOffsets.map((offset) => offset.dy).reduce((a, b) => a + b) /
+              screenOffsets.length;
 
       // Draw the number
       _drawText(canvas, '${i + 1}', Offset(centroidX, centroidY));
@@ -53,16 +57,22 @@ class SelectionPainter extends CustomPainter {
       canvas.drawPath(path, paintShades);
 
       // Calculate centroid
-      double centroidX = screenOffsets.map((offset) => offset.dx).reduce((a, b) => a + b) / screenOffsets.length;
-      double centroidY = screenOffsets.map((offset) => offset.dy).reduce((a, b) => a + b) / screenOffsets.length;
+      double centroidX =
+          screenOffsets.map((offset) => offset.dx).reduce((a, b) => a + b) /
+              screenOffsets.length;
+      double centroidY =
+          screenOffsets.map((offset) => offset.dy).reduce((a, b) => a + b) /
+              screenOffsets.length;
 
       // Draw the letter
-      _drawText(canvas, String.fromCharCode(65 + i), Offset(centroidX, centroidY));
+      _drawText(
+          canvas, String.fromCharCode(65 + i), Offset(centroidX, centroidY));
     }
 
     // Draw current stroke
     final currentPaint = Paint()
-      ..color = (activeType == SelectionType.teeth ? teethColor : shadesColor).withValues(alpha: 0.4)
+      ..color = (activeType == SelectionType.teeth ? teethColor : shadesColor)
+          .withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
 
     for (final point in currentStroke.getScreenOffset(renderBox)) {
@@ -73,14 +83,18 @@ class SelectionPainter extends CustomPainter {
   void _drawText(Canvas canvas, String text, Offset position) {
     final textSpan = TextSpan(
       text: text,
-      style: TextStyle(color: Colors.black, fontSize: 20 / resolution, fontWeight: FontWeight.bold),
+      style: TextStyle(
+          color: Colors.black,
+          fontSize: 20 / resolution,
+          fontWeight: FontWeight.bold),
     );
     final textPainter = TextPainter(
       text: textSpan,
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();
-    textPainter.paint(canvas, position - Offset(textPainter.width / 2, textPainter.height / 2));
+    textPainter.paint(canvas,
+        position - Offset(textPainter.width / 2, textPainter.height / 2));
   }
 
   @override

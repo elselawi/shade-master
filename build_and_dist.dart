@@ -80,13 +80,13 @@ void buildFor(
     print("   Finished platform: $platform");
   } else if (copyDirectory) {
     print("Distributing for platform $platform");
-    copyDirectorySync(Directory(resPath), Directory(p.join(Directory.current.path, "release", platform)));
+    copyDirectorySync(Directory(resPath), Directory(p.join(Directory.current.path, "dist", platform)));
     print("   Finished platform: $platform");
   } else {
     print("Distributing for platform $platform");
     final extension = p.basename(resPath).split(".").last;
     File sourceFile = File(resPath);
-    File destinationFile = File(p.join(Directory.current.path, "dist", "shade_master.$extension"));
+    File destinationFile = File(p.join(Directory.current.path, "release", "shade_master.$extension"));
     destinationFile.writeAsBytesSync(sourceFile.readAsBytesSync());
     print("   Finished platform: $platform");
   }
@@ -138,10 +138,13 @@ String readPreviousVersion() {
   return yamlMap["version"] as String;
 }
 
-replaceVersion(String oldV, String newV) {
-  final file = File("pubspec.yaml");
-  final content = file.readAsStringSync().replaceAll("version: $oldV", "version: $newV");
-  file.writeAsStringSync(content);
+void replaceVersion(String oldV, String newV) {
+  final file1 = File("pubspec.yaml");
+  final content1 = file1.readAsStringSync().replaceAll("version: $oldV", "version: $newV");
+  file1.writeAsStringSync(content1);
+  final file2 = File("./lib/version.dart");
+  final content2 = file2.readAsStringSync().replaceAll(oldV, newV);
+  file2.writeAsStringSync(content2);
 }
 
 String prompt(String message) {

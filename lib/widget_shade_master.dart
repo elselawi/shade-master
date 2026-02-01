@@ -38,15 +38,18 @@ class ShadeMasterState extends State<ShadeMaster> {
   void _onPanStart(DragStartDetails details) {
     if (_activeSelecting == SelectionType.none) return;
     setState(
-      () => _strokeNotifier.value = Stroke([GlobalOffset(details.globalPosition)]),
+      () => _strokeNotifier.value =
+          Stroke([GlobalOffset(details.globalPosition)]),
     );
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
     if (_activeSelecting == SelectionType.none) return;
-    setState(() {
-      _strokeNotifier.value = Stroke([..._strokeNotifier.value.offsets, GlobalOffset(details.globalPosition)]);
-    });
+
+    final newOffsets = List<GlobalOffset>.from(_strokeNotifier.value.offsets)
+      ..add(GlobalOffset(details.globalPosition));
+
+    _strokeNotifier.value = Stroke(newOffsets);
   }
 
   void _onPanEnd(DragEndDetails details) {
@@ -101,20 +104,21 @@ class ShadeMasterState extends State<ShadeMaster> {
                                 }
                                 final renderBox = renderObject;
                                 return ValueListenableBuilder(
-                                  valueListenable: _strokeNotifier,
-                                  builder: (context, stroke, child) {
-                                    return CustomPaint(
-                                      painter: SelectionPainter(
-                                        teethRegions: _allRegions[0],
-                                        shadesRegions: _allRegions[1],
-                                        currentStroke: stroke,
-                                        activeType: _activeSelecting,
-                                        renderBox: renderBox,
-                                        resolution: scale,
-                                      ),
-                                    );
-                                  }
-                                );
+                                    valueListenable: _strokeNotifier,
+                                    builder: (context, stroke, child) {
+                                      return RepaintBoundary(
+                                        child: CustomPaint(
+                                          painter: SelectionPainter(
+                                            teethRegions: _allRegions[0],
+                                            shadesRegions: _allRegions[1],
+                                            currentStroke: stroke,
+                                            activeType: _activeSelecting,
+                                            renderBox: renderBox,
+                                            resolution: scale,
+                                          ),
+                                        ),
+                                      );
+                                    });
                               }),
                             ),
                           )

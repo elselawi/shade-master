@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shadesmaster/version.dart';
 import 'package:shadesmaster/widget_shade_master.dart';
 import 'package:shadesmaster/widget_primary_button.dart';
 
@@ -84,7 +85,7 @@ class _MainPageState extends State<MainPage> {
                     buildPickerButtons(),
                     SizedBox(height: 25),
                     Text(
-                        "Shade Master Version 1.0 /// Developed by Dr. Ali A. Saleem",
+                        "Shade Master Version $version /// Developed by Dr. Ali A. Saleem",
                         style: TextStyle(fontSize: 11)),
                   ],
                 ),
