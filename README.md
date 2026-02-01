@@ -13,6 +13,10 @@ DEMO:
 
 ## Technical info
 
-For technical information about the algorithm used please refer to the file `lib/analysis/analyze.dart`
+The following graph explains it all:
+
+<a href="https://raw.githubusercontent.com/elselawi/shade-master/refs/heads/main/alg.png">
+  <img src="alg.png" width="200" alt="Click to view full size">
+</a>
 
 ## License MIT
