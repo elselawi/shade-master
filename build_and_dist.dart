@@ -80,7 +80,7 @@ void buildFor(
     print("   Finished platform: $platform");
   } else if (copyDirectory) {
     print("Distributing for platform $platform");
-    copyDirectorySync(Directory(resPath), Directory(p.join(Directory.current.path, "dist", platform)));
+    copyDirectorySync(Directory(resPath), Directory(p.join(Directory.current.path, "release", platform)));
     print("   Finished platform: $platform");
   } else {
     print("Distributing for platform $platform");
