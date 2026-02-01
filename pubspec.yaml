@@ -2,7 +2,7 @@ name: shadesmaster
 description: "Helping dentists to pick their tooth shades"
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.1
 
 environment:
   sdk: ^3.6.0
@@ -21,6 +21,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  archive: ^3.6.1
+  yaml: ^3.1.2
+  path: ^1.9.0
 
 flutter:
   uses-material-design: true
