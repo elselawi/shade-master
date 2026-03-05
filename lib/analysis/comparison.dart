@@ -24,7 +24,7 @@ double deltaE(
   final double deltaLPrime = color2.l - color1.l;
 
   // L Bar
-  final double LBar = (color1.l + color2.l) * 0.5;
+  final double lBar = (color1.l + color2.l) * 0.5;
 
   // C1 & C2 - use single sqrt call with pre-computed squares
   final double color1A2 = color1.a * color1.a;
@@ -32,44 +32,45 @@ double deltaE(
   final double color2A2 = color2.a * color2.a;
   final double color2B2 = color2.b * color2.b;
 
-  final double C1 = math.sqrt(color1A2 + color1B2);
-  final double C2 = math.sqrt(color2A2 + color2B2);
+  final double c1 = math.sqrt(color1A2 + color1B2);
+  final double c2 = math.sqrt(color2A2 + color2B2);
 
   // C Bar
-  final double CBar = (C1 + C2) * 0.5;
-  final double CBar7 = math.pow(CBar, 7.0).toDouble();
+  final double cBar = (c1 + c2) * 0.5;
+  final double cBar7 = math.pow(cBar, 7.0).toDouble();
 
   // Pre-compute the G factor used in both aPrime calculations
-  final double G = 0.5 * (1.0 - math.sqrt(CBar7 / (CBar7 + _pow25_7)));
+  final double G = 0.5 * (1.0 - math.sqrt(cBar7 / (cBar7 + _pow25_7)));
 
   // A Prime 1 & 2
   final double aPrime1 = color1.a * (1.0 + G);
   final double aPrime2 = color2.a * (1.0 + G);
 
   // C Prime 1 & 2
-  final double CPrime1 = math.sqrt(aPrime1 * aPrime1 + color1B2);
-  final double CPrime2 = math.sqrt(aPrime2 * aPrime2 + color2B2);
+  final double cPrime1 = math.sqrt(aPrime1 * aPrime1 + color1B2);
+  final double cPrime2 = math.sqrt(aPrime2 * aPrime2 + color2B2);
 
   // C Bar Prime
-  final double CBarPrime = (CPrime1 + CPrime2) * 0.5;
+  final double cBarPrime = (cPrime1 + cPrime2) * 0.5;
 
   // Delta C Prime
-  final double deltaCPrime = CPrime2 - CPrime1;
+  final double deltaCPrime = cPrime2 - cPrime1;
 
   // S sub L - optimize the fraction
-  final double LBarMinus50 = LBar - 50.0;
-  final double LBarMinus50Sq = LBarMinus50 * LBarMinus50;
-  final double SsubL = 1.0 + (0.015 * LBarMinus50Sq) / math.sqrt(20.0 + LBarMinus50Sq);
+  final double lBarMinus50 = lBar - 50.0;
+  final double lBarMinus50Sq = lBarMinus50 * lBarMinus50;
+  final double ssubL =
+      1.0 + (0.015 * lBarMinus50Sq) / math.sqrt(20.0 + lBarMinus50Sq);
 
   // S sub C
-  final double SsubC = 1.0 + 0.045 * CBarPrime;
+  final double ssubC = 1.0 + 0.045 * cBarPrime;
 
   // Helper function for h Prime calculation
   double gethPrime(double x, double y) {
     if (x == 0.0 && y == 0.0) {
       return 0.0;
     }
-    final double hueAngle = math.atan2(x, y) * _180Pi;
+    final double hueAngle = math.atan2(x, y) * _i180Pi;
     return hueAngle >= 0.0 ? hueAngle : hueAngle + 360.0;
   }
 
@@ -79,7 +80,7 @@ double deltaE(
 
   // Delta h Prime
   double deltahPrime;
-  if (C1 == 0.0 || C2 == 0.0) {
+  if (c1 == 0.0 || c2 == 0.0) {
     deltahPrime = 0.0;
   } else {
     final double diff = hPrime1 - hPrime2;
@@ -95,46 +96,49 @@ double deltaE(
   }
 
   // Delta H Prime
-  final double deltaHPrime = 2.0 * math.sqrt(CPrime1 * CPrime2) * math.sin(deltahPrime * _pi180 * 0.5);
+  final double deltaHPrime =
+      2.0 * math.sqrt(cPrime1 * cPrime2) * math.sin(deltahPrime * _pi180 * 0.5);
 
   // H Bar Prime
-  double HBarPrime;
+  double hBarPrime;
   final double hPrimeDiff = (hPrime1 - hPrime2).abs();
   if (hPrimeDiff > 180.0) {
-    HBarPrime = (hPrime1 + hPrime2 + 360.0) * 0.5;
+    hBarPrime = (hPrime1 + hPrime2 + 360.0) * 0.5;
   } else {
-    HBarPrime = (hPrime1 + hPrime2) * 0.5;
+    hBarPrime = (hPrime1 + hPrime2) * 0.5;
   }
 
   // T - pre-compute angle conversions
-  final double HBarPrimeRad = HBarPrime * _pi180;
+  final double hBarPrimeRad = hBarPrime * _pi180;
   final double T = 1.0 -
-      0.17 * math.cos(HBarPrimeRad - 30.0 * _pi180) +
-      0.24 * math.cos(2.0 * HBarPrimeRad) +
-      0.32 * math.cos(3.0 * HBarPrimeRad + 6.0 * _pi180) -
-      0.2 * math.cos(4.0 * HBarPrimeRad - 63.0 * _pi180);
+      0.17 * math.cos(hBarPrimeRad - 30.0 * _pi180) +
+      0.24 * math.cos(2.0 * hBarPrimeRad) +
+      0.32 * math.cos(3.0 * hBarPrimeRad + 6.0 * _pi180) -
+      0.2 * math.cos(4.0 * hBarPrimeRad - 63.0 * _pi180);
 
   // S sub H
-  final double SsubH = 1.0 + 0.015 * CBarPrime * T;
+  final double ssubH = 1.0 + 0.015 * cBarPrime * T;
 
   // R sub T
-  final double CBarPrime7 = math.pow(CBarPrime, 7.0).toDouble();
-  final double HBarPrimeMinus275 = (HBarPrime - 275.0) / 25.0;
-  final double RsubT = -2.0 *
-      math.sqrt(CBarPrime7 / (CBarPrime7 + _pow25_7)) *
-      math.sin(60.0 * _pi180 * math.exp(-HBarPrimeMinus275 * HBarPrimeMinus275));
+  final double cBarPrime7 = math.pow(cBarPrime, 7.0).toDouble();
+  final double hBarPrimeMinus275 = (hBarPrime - 275.0) / 25.0;
+  final double rsubT = -2.0 *
+      math.sqrt(cBarPrime7 / (cBarPrime7 + _pow25_7)) *
+      math.sin(
+          60.0 * _pi180 * math.exp(-hBarPrimeMinus275 * hBarPrimeMinus275));
 
   // Final calculation
-  final double lightnessComponent = deltaLPrime / (ksubL * SsubL);
-  final double chromaComponent = deltaCPrime / (ksubC * SsubC);
-  final double hueComponent = deltaHPrime / (ksubH * SsubH);
+  final double lightnessComponent = deltaLPrime / (ksubL * ssubL);
+  final double chromaComponent = deltaCPrime / (ksubC * ssubC);
+  final double hueComponent = deltaHPrime / (ksubH * ssubH);
 
   return math.sqrt(
-    lightnessComponent * lightnessComponent +
-        chromaComponent * chromaComponent +
-        hueComponent * hueComponent +
-        RsubT * chromaComponent * hueComponent,
-  );
+        lightnessComponent * lightnessComponent +
+            chromaComponent * chromaComponent +
+            hueComponent * hueComponent +
+            rsubT * chromaComponent * hueComponent,
+      ) *
+      10;
 }
 
 /// Returns the visual distance using the above deltaE2000 but **for groups**
@@ -177,7 +181,7 @@ double deltaGroups(List<LabColor> sortedGroupA, List<LabColor> sortedGroupB) {
 // Pre-computed constants
 const double _pow25_7 = 6103515625.0; // 25^7
 const double _pi180 = math.pi / 180.0;
-const double _180Pi = 180.0 / math.pi;
+const double _i180Pi = 180.0 / math.pi;
 
 double _average(List<double> values) {
   if (values.isEmpty) return 0.0;

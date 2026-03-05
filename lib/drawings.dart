@@ -96,7 +96,8 @@ class Region extends Stroke {
     if (_cacheKey == key && _cachedLabs != null) {
       return _cachedLabs!;
     }
-    final result = getColors(unit8Img, renderBox).map((c) => rgbToLab(c)).toList();
+    final result =
+        getColors(unit8Img, renderBox).map((c) => rgbToLab(c)).toList();
     _cachedLabs = result;
     return result;
   }
@@ -106,19 +107,24 @@ class Region extends Stroke {
     if (_cacheKey == key && _cachedSortedLabs != null) {
       return _cachedSortedLabs!;
     }
-    final result = getLabColors(unit8Img, renderBox)..sort((l1, l2) => (l1.l - l2.l).toInt());
+    final result = getLabColors(unit8Img, renderBox)
+      ..sort((l1, l2) => (l1.l - l2.l).toInt());
     _cachedSortedLabs = result;
     return result;
   }
 
-  List<LabColor> getSortedPrunedLabColors(Unit8Img unit8Img, RenderBox renderBox) {
+  List<LabColor> getSortedPrunedLabColors(
+      Unit8Img unit8Img, RenderBox renderBox) {
     final key = listHash(offsets);
     if (_cacheKey == key && _cachedSortedPrunedLabs != null) {
       return _cachedSortedPrunedLabs!;
     }
     final justSorted = getSortedLabColors(unit8Img, renderBox);
     final medianColor = justSorted[(justSorted.length / 2).floor()];
-    final result = justSorted.where((labColor) => deltaE(labColor, medianColor) < 1).toList();
+    final result = justSorted.where((labColor) {
+      final delta = deltaE(labColor, medianColor);
+      return delta < 0.35; // this number has been fine-tuned, try not to touch
+    }).toList();
     _cachedSortedPrunedLabs = result;
     return result;
   }

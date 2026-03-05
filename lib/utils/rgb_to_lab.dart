@@ -17,12 +17,16 @@ class LabColor {
   const LabColor(this.l, this.a, this.b);
 
   @override
-  String toString() => 'Lab(L: ${l.toStringAsFixed(2)}, a: ${a.toStringAsFixed(2)}, b: ${b.toStringAsFixed(2)})';
+  String toString() =>
+      'Lab(L: ${l.toStringAsFixed(2)}, a: ${a.toStringAsFixed(2)}, b: ${b.toStringAsFixed(2)})';
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LabColor && (l - other.l).abs() < 0.001 && (a - other.a).abs() < 0.001 && (b - other.b).abs() < 0.001;
+      other is LabColor &&
+          (l - other.l).abs() < 0.001 &&
+          (a - other.a).abs() < 0.001 &&
+          (b - other.b).abs() < 0.001;
 
   @override
   int get hashCode => Object.hash(
@@ -63,7 +67,10 @@ LabColor rgbToLab(Color color) {
   // Convert sRGB to linear RGB with gamma correction
   double srgbToLinear(double value) {
     final normalized = value / 255.0;
-    return ((normalized <= 0.04045) ? normalized / 12.92 : math.pow((normalized + 0.055) / 1.055, 2.4)).toDouble();
+    return ((normalized <= 0.04045)
+            ? normalized / 12.92
+            : math.pow((normalized + 0.055) / 1.055, 2.4))
+        .toDouble();
   }
 
   final rLinear = srgbToLinear(r);
@@ -87,7 +94,10 @@ LabColor rgbToLab(Color color) {
     const epsilon = 0.008856; // (6/29)³
     const kappa = 903.3; // (29/3)³
 
-    return ((component > epsilon) ? math.pow(component, 1.0 / 3.0) : (kappa * component + 16) / 116).toDouble();
+    return ((component > epsilon)
+            ? math.pow(component, 1.0 / 3.0)
+            : (kappa * component + 16) / 116)
+        .toDouble();
   }
 
   final fx = xyzToLabComponent(xNorm);

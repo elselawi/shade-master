@@ -25,9 +25,24 @@ class ToolbarButton extends StatelessWidget {
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           decoration: BoxDecoration(
-            color: isActive ? activeColor.withValues(alpha: 0.2) : Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: isActive ? activeColor : Colors.transparent, width: 1.5),
+            color: isActive
+                ? activeColor.withValues(alpha: 0.15)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+                color: isActive
+                    ? activeColor.withValues(alpha: 0.5)
+                    : Colors.transparent,
+                width: 1.5),
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: activeColor.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  ]
+                : null,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -37,9 +52,9 @@ class ToolbarButton extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.black,
-                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                  fontSize: 11,
+                  color: Colors.black87,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                 ),
               ),
             ],

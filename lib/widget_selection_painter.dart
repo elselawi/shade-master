@@ -22,12 +22,22 @@ class SelectionPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paintTeeth = Paint()
-      ..color = teethColor.withValues(alpha: 0.4)
+      ..color = teethColor.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
 
+    final strokeTeeth = Paint()
+      ..color = teethColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2 / resolution;
+
     final paintShades = Paint()
-      ..color = shadesColor.withValues(alpha: 0.4)
+      ..color = shadesColor.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
+
+    final strokeShades = Paint()
+      ..color = shadesColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2 / resolution;
 
     // Draw teeth regions with numbers
     for (int i = 0; i < teethRegions.length; i++) {
@@ -35,7 +45,8 @@ class SelectionPainter extends CustomPainter {
       final screenOffsets = region.getScreenOffset(renderBox);
 
       final path = Path()..addPolygon(screenOffsets, true);
-      canvas.drawPath(path, paintTeeth..color);
+      canvas.drawPath(path, paintTeeth);
+      canvas.drawPath(path, strokeTeeth);
 
       // Calculate centroid
       double centroidX =
@@ -46,7 +57,7 @@ class SelectionPainter extends CustomPainter {
               screenOffsets.length;
 
       // Draw the number
-      _drawText(canvas, '${i + 1}', Offset(centroidX, centroidY));
+      _drawText(canvas, '${i + 1}', Offset(centroidX, centroidY), teethColor);
     }
 
     // Draw shades regions with letters
@@ -55,6 +66,7 @@ class SelectionPainter extends CustomPainter {
       final screenOffsets = region.getScreenOffset(renderBox);
       final path = Path()..addPolygon(screenOffsets, true);
       canvas.drawPath(path, paintShades);
+      canvas.drawPath(path, strokeShades);
 
       // Calculate centroid
       double centroidX =
@@ -65,34 +77,45 @@ class SelectionPainter extends CustomPainter {
               screenOffsets.length;
 
       // Draw the letter
-      _drawText(
-          canvas, String.fromCharCode(65 + i), Offset(centroidX, centroidY));
+      _drawText(canvas, String.fromCharCode(65 + i),
+          Offset(centroidX, centroidY), shadesColor);
     }
 
     // Draw current stroke
     final currentPaint = Paint()
       ..color = (activeType == SelectionType.teeth ? teethColor : shadesColor)
-          .withValues(alpha: 0.4)
+          .withValues(alpha: 0.5)
       ..style = PaintingStyle.fill;
 
     for (final point in currentStroke.getScreenOffset(renderBox)) {
-      canvas.drawCircle(point, 4 / resolution, currentPaint);
+      canvas.drawCircle(point, 5 / resolution, currentPaint);
     }
   }
 
-  void _drawText(Canvas canvas, String text, Offset position) {
+  void _drawText(Canvas canvas, String text, Offset position, Color color) {
     final textSpan = TextSpan(
       text: text,
       style: TextStyle(
-          color: Colors.black,
-          fontSize: 20 / resolution,
-          fontWeight: FontWeight.bold),
+          color: Colors.white,
+          fontSize: 18 / resolution,
+          fontWeight: FontWeight.bold,
+          shadows: [
+            Shadow(
+              color: Colors.black.withValues(alpha: 0.5),
+              blurRadius: 4,
+            ),
+          ]),
     );
     final textPainter = TextPainter(
       text: textSpan,
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();
+
+    // Draw background circle for label
+    final bgPaint = Paint()..color = color.withValues(alpha: 0.8);
+    canvas.drawCircle(position, (textPainter.width + 8) / 2, bgPaint);
+
     textPainter.paint(canvas,
         position - Offset(textPainter.width / 2, textPainter.height / 2));
   }

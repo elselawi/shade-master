@@ -56,40 +56,100 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      body: Center(
-        child: imgPicked != null
-            ? ShadeMaster(
-                img: imgPicked!,
-                onClose: closeImage,
-              )
-            : Padding(
-                padding: EdgeInsets.all(12),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text("Welcome to Shade Master",
-                        style: TextStyle(fontSize: 20)),
-                    SizedBox(height: 10),
-                    ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(16), // adjust the radius
-                      child: Image.asset(
-                        'assets/icon/app_icon.png',
-                        width: 200,
-                        height: 200,
-                        fit: BoxFit.cover,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              colorScheme.primaryContainer.withValues(alpha: 0.3),
+              Colors.white,
+            ],
+          ),
+        ),
+        child: Center(
+          child: imgPicked != null
+              ? ShadeMaster(
+                  img: imgPicked!,
+                  onClose: closeImage,
+                )
+              : TweenAnimationBuilder<double>(
+                  duration: const Duration(seconds: 1),
+                  tween: Tween(begin: 0, end: 1),
+                  builder: (context, value, child) {
+                    return Opacity(
+                      opacity: value,
+                      child: Transform.translate(
+                        offset: Offset(0, 20 * (1 - value)),
+                        child: child,
                       ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Welcome to",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        Text(
+                          "Shade Master",
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color:
+                                    colorScheme.primary.withValues(alpha: 0.1),
+                                blurRadius: 20,
+                                spreadRadius: 5,
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(24),
+                            child: Image.asset(
+                              'assets/icon/app_icon.png',
+                              width: 180,
+                              height: 180,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        buildPickerButtons(),
+                        const SizedBox(height: 40),
+                        Text(
+                          "Version $version • Developed by Dr. Ali A. Saleem",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.7),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 10),
-                    buildPickerButtons(),
-                    SizedBox(height: 25),
-                    Text(
-                        "Shade Master Version $version /// Developed by Dr. Ali A. Saleem",
-                        style: TextStyle(fontSize: 11)),
-                  ],
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }

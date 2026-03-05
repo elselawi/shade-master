@@ -27,10 +27,15 @@ Color simpleAverageColor(List<Color> colors) {
   }
 
   // Calculate the average of each component
-  int avgRed = (red / colors.length).round();
-  int avgGreen = (green / colors.length).round();
-  int avgBlue = (blue / colors.length).round();
-  int avgAlpha = (alpha / colors.length).round();
+  double avgRed = (red / colors.length);
+  double avgGreen = (green / colors.length);
+  double avgBlue = (blue / colors.length);
+  double avgAlpha = (alpha / colors.length);
 
-  return Color.fromARGB(avgAlpha, avgRed, avgGreen, avgBlue);
+  return Color.from(
+    alpha: avgAlpha,
+    red: avgRed,
+    green: avgGreen,
+    blue: avgBlue,
+  );
 }

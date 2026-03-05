@@ -42,16 +42,19 @@ Future<List<ShadeResult>> analyze(
   // extract all dental colors into a single palette
   final List<LabColor> dentalColors = [];
   for (var toothRegion in teethRegions) {
-    dentalColors.addAll(toothRegion.getSortedPrunedLabColors(unit8Img, renderBox));
+    dentalColors
+        .addAll(toothRegion.getSortedPrunedLabColors(unit8Img, renderBox));
   }
 
   // then sort this one palette
-  dentalColors.sort((labColorA, labColorB) => (labColorA.l - labColorB.l).toInt());
+  dentalColors
+      .sort((labColorA, labColorB) => (labColorA.l - labColorB.l).toInt());
 
   // find average number of colors in a shade region
   int totalLength = 0;
   for (var shadeRegion in shadesRegions) {
-    totalLength = totalLength + shadeRegion.getColors(unit8Img, renderBox).length;
+    totalLength =
+        totalLength + shadeRegion.getColors(unit8Img, renderBox).length;
   }
   final averageShadeSize = (totalLength / shadesRegions.length).toInt();
 
@@ -60,7 +63,8 @@ Future<List<ShadeResult>> analyze(
 
   final List<double> deltas = [];
   for (var shadeRegion in shadesRegions) {
-    deltas.add(deltaGroups(dentalColorsSample, shadeRegion.getSortedPrunedLabColors(unit8Img, renderBox)));
+    deltas.add(deltaGroups(dentalColorsSample,
+        shadeRegion.getSortedPrunedLabColors(unit8Img, renderBox)));
   }
 
   final winner = deltas.reduce((a, b) => a < b ? a : b);

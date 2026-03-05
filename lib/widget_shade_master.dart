@@ -127,14 +127,47 @@ class ShadeMasterState extends State<ShadeMaster> {
                 ],
               ),
             ),
-            buildToolbar(constraints),
-            if (_isAnalyzing)
-              Container(
-                color: Colors.black54,
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
+            Positioned.fill(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: _isAnalyzing
+                    ? Container(
+                        key: const ValueKey('analyzing'),
+                        color: Colors.black.withValues(alpha: 0.6),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const CircularProgressIndicator(
+                                strokeWidth: 3,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                "Analyzing Image...",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 1.2,
+                                  shadows: [
+                                    Shadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.5),
+                                      blurRadius: 10,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
               ),
+            ),
+            buildToolbar(constraints),
           ],
         );
       },
@@ -147,18 +180,25 @@ class ShadeMasterState extends State<ShadeMaster> {
       width: constraints.maxWidth,
       child: Center(
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(20),
           child: BackdropFilter(
-            filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            filter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .2),
-                borderRadius: BorderRadius.circular(5),
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: .3),
-                  width: 1.5,
+                  color: Colors.white.withValues(alpha: 0.2),
+                  width: 1,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
@@ -266,9 +306,45 @@ class ShadeMasterState extends State<ShadeMaster> {
                           },
                           activeColor: Colors.orange,
                         ),
+                      if (_allRegions[0].isNotEmpty ||
+                          _allRegions[1].isNotEmpty)
+                        ToolbarButton(
+                          icon: HugeIcon(icon: HugeIcons.strokeRoundedEraser),
+                          label: "Clear All",
+                          isActive: false,
+                          onPress: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Clear All?"),
+                                content: const Text(
+                                    "This will remove all your selections."),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text("Cancel"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _allRegions[0].clear();
+                                        _allRegions[1].clear();
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text("Clear"),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          activeColor: Colors.red,
+                        ),
                       ToolbarButton(
-                        icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout02),
-                        label: "Close image",
+                        icon: HugeIcon(
+                            icon: HugeIcons.strokeRoundedLogout02,
+                            color: Colors.black87),
+                        label: "Exit",
                         isActive: false,
                         onPress: widget.onClose,
                       ),
@@ -283,51 +359,144 @@ class ShadeMasterState extends State<ShadeMaster> {
     );
   }
 
-  showResultsDialog(List<ShadeResult> results) {
-    return showDialog(
-      barrierDismissible: false,
+  Future<void> showResultsDialog(List<ShadeResult> results) {
+    return showModalBottomSheet<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Color Matches'),
-        content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.all(24.0),
+              child: Text(
+                'Color Match Analysis',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ),
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: results.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      selected: results[index].winner,
-                      selectedColor: Colors.green,
-                      leading: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: results[index].averageColor,
-                              border: Border.all(color: Colors.grey),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward),
-                        ],
+                  final result = results[index];
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: result.winner
+                          ? Colors.green.withValues(alpha: 0.05)
+                          : Colors.grey.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: result.winner
+                            ? Colors.green.withValues(alpha: 0.3)
+                            : Colors.transparent,
+                        width: 1.5,
                       ),
-                      title: Text('Shade ${results[index].name}'),
-                      subtitle:
-                          Text('Similarity: ${results[index].similarity}%'),
-                      trailing: results[index].winner
-                          ? Text("Winner")
-                          : SizedBox.shrink(),
+                    ),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      leading: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: result.averageColor,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: result.averageColor.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: result.winner
+                            ? const Icon(Icons.check, color: Colors.white)
+                            : null,
+                      ),
+                      title: Text(
+                        'Shade ${result.name}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Match Confidence: ${result.similarity}%',
+                        style: TextStyle(
+                          color: result.winner
+                              ? Colors.green[700]
+                              : Colors.grey[600],
+                          fontWeight: result.winner
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
+                      trailing: result.winner
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.green,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                "WINNER",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            )
+                          : null,
                     ),
                   );
-                })),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    'Done',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

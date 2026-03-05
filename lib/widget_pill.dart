@@ -5,38 +5,55 @@ class Pill extends StatelessWidget {
   final VoidCallback onClose;
   final Color? color;
 
-  const Pill({super.key, required this.label, required this.onClose, this.color});
+  const Pill(
+      {super.key, required this.label, required this.onClose, this.color});
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? Colors.black38;
+    final colorScheme = Theme.of(context).colorScheme;
+    final baseColor = color ?? colorScheme.surfaceContainerHighest;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: c,
-        borderRadius: BorderRadius.circular(5),
+        color: baseColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 13.5),
+            style: TextStyle(
+              color: baseColor.computeLuminance() > 0.5
+                  ? Colors.black87
+                  : Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: onClose,
             child: Container(
-              padding: EdgeInsets.all(1),
+              padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: c.withValues(blue: c.b + 30, red: c.r + 30, green: c.g + 30),
-                borderRadius: BorderRadius.circular(3),
+                color: Colors.black.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.close,
-                size: 18,
-                color: Colors.black38,
+                size: 14,
+                color: baseColor.computeLuminance() > 0.5
+                    ? Colors.black54
+                    : Colors.white70,
               ),
             ),
           ),
