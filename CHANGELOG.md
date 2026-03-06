@@ -1,4 +1,9 @@
 
+### ____2.1.0____
+
+-   new feature: auto select on tapping
+
+
 ### ____2.0.4____
 
 -   implemented hive_ce instead of shared_preferences for better cross-platform compatibility
