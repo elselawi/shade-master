@@ -65,12 +65,11 @@ double deltaE(
   // S sub C
   final double ssubC = 1.0 + 0.045 * cBarPrime;
 
-  // Helper function for h Prime calculation
-  double gethPrime(double x, double y) {
-    if (x == 0.0 && y == 0.0) {
+  double gethPrime(double b, double aPrime) {
+    if (b == 0.0 && aPrime == 0.0) {
       return 0.0;
     }
-    final double hueAngle = math.atan2(x, y) * _i180Pi;
+    final double hueAngle = math.atan2(b, aPrime) * _i180Pi;
     return hueAngle >= 0.0 ? hueAngle : hueAngle + 360.0;
   }
 
@@ -80,7 +79,7 @@ double deltaE(
 
   // Delta h Prime
   double deltahPrime;
-  if (c1 == 0.0 || c2 == 0.0) {
+  if (cPrime1 == 0.0 || cPrime2 == 0.0) {
     deltahPrime = 0.0;
   } else {
     final double diff = hPrime1 - hPrime2;
@@ -101,11 +100,22 @@ double deltaE(
 
   // H Bar Prime
   double hBarPrime;
-  final double hPrimeDiff = (hPrime1 - hPrime2).abs();
-  if (hPrimeDiff > 180.0) {
-    hBarPrime = (hPrime1 + hPrime2 + 360.0) * 0.5;
+
+  if (cPrime1 * cPrime2 == 0.0) {
+    hBarPrime = hPrime1 + hPrime2;
   } else {
-    hBarPrime = (hPrime1 + hPrime2) * 0.5;
+    final double hPrimeDiff = (hPrime1 - hPrime2).abs();
+    final double hPrimeSum = hPrime1 + hPrime2;
+
+    if (hPrimeDiff > 180.0) {
+      if (hPrimeSum < 360.0) {
+        hBarPrime = (hPrimeSum + 360.0) * 0.5;
+      } else {
+        hBarPrime = (hPrimeSum - 360.0) * 0.5;
+      }
+    } else {
+      hBarPrime = hPrimeSum * 0.5;
+    }
   }
 
   // T - pre-compute angle conversions
@@ -132,13 +142,10 @@ double deltaE(
   final double chromaComponent = deltaCPrime / (ksubC * ssubC);
   final double hueComponent = deltaHPrime / (ksubH * ssubH);
 
-  return math.sqrt(
-        lightnessComponent * lightnessComponent +
-            chromaComponent * chromaComponent +
-            hueComponent * hueComponent +
-            rsubT * chromaComponent * hueComponent,
-      ) *
-      10;
+  return math.sqrt(lightnessComponent * lightnessComponent +
+      chromaComponent * chromaComponent +
+      hueComponent * hueComponent +
+      rsubT * chromaComponent * hueComponent);
 }
 
 /// Returns the visual distance using the above deltaE2000 but **for groups**

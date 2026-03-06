@@ -123,7 +123,7 @@ class Region extends Stroke {
     final medianColor = justSorted[(justSorted.length / 2).floor()];
     final result = justSorted.where((labColor) {
       final delta = deltaE(labColor, medianColor);
-      return delta < 0.35; // this number has been fine-tuned, try not to touch
+      return delta < 3.5; // this number has been fine-tuned, try not to touch
     }).toList();
     _cachedSortedPrunedLabs = result;
     return result;

@@ -60,9 +60,10 @@ class LabColor {
 /// ```
 LabColor rgbToLab(Color color) {
   // Extract RGB using efficient bit operations
-  final double r = color.r;
-  final double g = color.g;
-  final double b = color.b;
+  // Extract RGB and scale to 0-255 since Flutter Color components are 0.0-1.0
+  final double r = color.r * 255.0;
+  final double g = color.g * 255.0;
+  final double b = color.b * 255.0;
 
   // Convert sRGB to linear RGB with gamma correction
   double srgbToLinear(double value) {

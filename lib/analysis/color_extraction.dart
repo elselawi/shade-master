@@ -20,7 +20,8 @@ import 'package:shadesmaster/utils/unit_8_img.dart';
 /// [height] Height of the image in pixels
 ///
 /// Returns a list of unique Color objects found within the region
-List<Color> getAllColorsFromRegion(Unit8Img unit8Img, RenderBox renderBox, Region region) {
+List<Color> getAllColorsFromRegion(
+    Unit8Img unit8Img, RenderBox renderBox, Region region) {
   final pixels = unit8Img.pixels;
   final width = unit8Img.width;
   final height = unit8Img.height;
@@ -38,7 +39,7 @@ List<Color> getAllColorsFromRegion(Unit8Img unit8Img, RenderBox renderBox, Regio
   final pixelOffsets = region.getPixelOffset(renderBox, unit8Img);
 
   // Calculate bounding box of the region
-  final boundingBox = _calculateBoundingBox(pixelOffsets);
+  final boundingBox = calculateBoundingBox(pixelOffsets);
 
   // Clamp bounding box to image dimensions for safety
   final startX = math.max(0, boundingBox.left.floor());
@@ -55,7 +56,7 @@ List<Color> getAllColorsFromRegion(Unit8Img unit8Img, RenderBox renderBox, Regio
       // Reuse the same Offset object for better performance
       currentPoint = Offset(x.toDouble(), y.toDouble());
 
-      if (_isPointInPolygon(currentPoint, pixelOffsets)) {
+      if (isPointInPolygon(currentPoint, pixelOffsets)) {
         final color = _extractColorAtPixel(pixels, x, y, width);
         if (color != null) {
           extractedColors.add(color);
@@ -79,7 +80,7 @@ List<Color> getAllColorsFromRegion(Unit8Img unit8Img, RenderBox renderBox, Regio
 /// [polygon] List of vertices defining the polygon (must have at least 3 points)
 ///
 /// Returns true if the point is inside the polygon, false otherwise
-bool _isPointInPolygon(Offset point, List<Offset> polygon) {
+bool isPointInPolygon(Offset point, List<Offset> polygon) {
   // Early return for invalid input
   if (polygon.length < 3) return false;
 
@@ -111,7 +112,8 @@ bool _isPointInPolygon(Offset point, List<Offset> polygon) {
     if (edgeStraddles) {
       // Calculate x-coordinate where the edge intersects the horizontal ray
       // Using the line equation: x = x1 + (x2-x1) * (y-y1) / (y2-y1)
-      final double intersectionX = prevX + (currentX - prevX) * (py - prevY) / (currentY - prevY);
+      final double intersectionX =
+          prevX + (currentX - prevX) * (py - prevY) / (currentY - prevY);
 
       // If intersection is to the right of the point, we crossed an edge
       if (px < intersectionX) {
@@ -129,7 +131,7 @@ bool _isPointInPolygon(Offset point, List<Offset> polygon) {
 /// [points] List of points to calculate bounding box for
 ///
 /// Returns a Rect representing the bounding box
-Rect _calculateBoundingBox(List<Offset> points) {
+Rect calculateBoundingBox(List<Offset> points) {
   if (points.isEmpty) return Rect.zero;
 
   double minX = points.first.dx;

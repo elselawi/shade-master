@@ -5,6 +5,7 @@ import 'package:shadesmaster/drawings.dart';
 import 'package:shadesmaster/utils/int_to_letter.dart';
 import 'package:shadesmaster/utils/rgb_to_lab.dart';
 import 'package:shadesmaster/utils/unit_8_img.dart';
+import 'dart:math' as math;
 
 /// Analysis algorithm:
 ///
@@ -59,7 +60,7 @@ Future<List<ShadeResult>> analyze(
   final averageShadeSize = (totalLength / shadesRegions.length).toInt();
 
   // get an even sample from the one large teeth palette
-  final dentalColorsSample = _evenlySample(dentalColors, averageShadeSize);
+  final dentalColorsSample = evenlySample(dentalColors, averageShadeSize);
 
   final List<double> deltas = [];
   for (var shadeRegion in shadesRegions) {
@@ -94,12 +95,15 @@ class ShadeResult {
   ShadeResult(this.name, this.delta, this.averageColor, this.winner);
 
   double get similarity {
-    return (10000 - (delta * 10000)).toInt() / 100;
+    double clampedInput = delta.clamp(1, 40);
+    double fraction = (clampedInput - 1) / (40 - 1);
+    return math.max(0, 100 - (fraction * 100)).roundToDouble();
   }
 }
 
-List<T> _evenlySample<T>(List<T> list, int targetSize) {
+List<T> evenlySample<T>(List<T> list, int targetSize) {
   if (targetSize >= list.length) return List.from(list);
+  if (targetSize <= 1) return [list.first];
 
   double step = (list.length - 1) / (targetSize - 1);
   return List.generate(targetSize, (i) => list[(i * step).round()]);
