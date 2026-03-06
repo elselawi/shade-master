@@ -9,9 +9,12 @@ import 'package:shadesmaster/models/history_item.dart';
 import 'package:shadesmaster/services/history_service.dart';
 import 'package:shadesmaster/widget_custom_input_dialog.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:hive_ce_flutter/adapters.dart';
 import 'package:intl/intl.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
   runApp(const MyApp());
 }
 
@@ -52,11 +55,23 @@ class _MainPageState extends State<MainPage> {
 
   Future<void> _loadHistory() async {
     setState(() => _isLoadingHistory = true);
-    final items = await HistoryService.getHistoryItems();
-    setState(() {
-      _historyItems = items;
-      _isLoadingHistory = false;
-    });
+    try {
+      final items = await HistoryService.getHistoryItems();
+      if (mounted) {
+        setState(() {
+          _historyItems = items;
+        });
+      }
+    } catch (e, stack) {
+      debugPrint("FATAL Error loading history: $e");
+      debugPrint(stack.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingHistory = false;
+        });
+      }
+    }
   }
 
   void pickImage(bool camera) async {

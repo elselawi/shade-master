@@ -2,7 +2,7 @@ name: shadesmaster
 description: "Helping dentists to pick their tooth shades"
 publish_to: 'none'
 
-version: 2.0.0
+version: 2.0.4
 
 environment:
   sdk: ^3.6.0
@@ -17,6 +17,8 @@ dependencies:
   shared_preferences: ^2.5.4
   uuid: ^4.5.3
   intl: ^0.20.2
+  hive_ce: ^2.19.3
+  hive_ce_flutter: ^2.3.4
 
 
 dev_dependencies:

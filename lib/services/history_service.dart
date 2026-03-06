@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'package:flutter/rendering.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shadesmaster/services/persistence_service.dart';
 import 'package:shadesmaster/models/history_item.dart';
 
 class HistoryService {
   static const String _historyKey = 'shade_master_history';
 
   static Future<void> saveHistoryItem(HistoryItem item) async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final List<String> historyStrings = prefs.getStringList(_historyKey) ?? [];
+    final persistence = PersistenceService.instance;
+    final List<String> historyStrings =
+        await persistence.getStringList(_historyKey);
 
     // Check if we are updating an existing item (by id)
     final existingIndex = historyStrings.indexWhere((string) {
@@ -31,28 +31,36 @@ class HistoryService {
       historyStrings.insert(0, itemJson); // add to top
     }
 
-    await prefs.setStringList(_historyKey, historyStrings);
+    await persistence.setStringList(_historyKey, historyStrings);
   }
 
   static Future<List<HistoryItem>> getHistoryItems() async {
-    final prefs = await SharedPreferences.getInstance();
-    final List<String> historyStrings = prefs.getStringList(_historyKey) ?? [];
+    final persistence = PersistenceService.instance;
+    final List<String> historyStrings =
+        await persistence.getStringList(_historyKey);
+
+    debugPrint("Loading ${historyStrings.length} history items...");
 
     final List<HistoryItem> items = [];
-    for (String string in historyStrings) {
+    for (int i = 0; i < historyStrings.length; i++) {
+      final string = historyStrings[i];
       try {
         final map = jsonDecode(string);
         items.add(HistoryItem.fromJson(map));
       } catch (e) {
-        debugPrint("Error decoding history item: $e");
+        debugPrint("Error decoding history item at index $i: $e");
+        debugPrint(
+            "Corrupted data snippet: ${string.length > 100 ? string.substring(0, 100) + "..." : string}");
       }
     }
+    debugPrint("Successfully loaded ${items.length} items.");
     return items;
   }
 
   static Future<void> deleteHistoryItem(String id) async {
-    final prefs = await SharedPreferences.getInstance();
-    final List<String> historyStrings = prefs.getStringList(_historyKey) ?? [];
+    final persistence = PersistenceService.instance;
+    final List<String> historyStrings =
+        await persistence.getStringList(_historyKey);
 
     historyStrings.removeWhere((string) {
       try {
@@ -63,6 +71,6 @@ class HistoryService {
       }
     });
 
-    await prefs.setStringList(_historyKey, historyStrings);
+    await persistence.setStringList(_historyKey, historyStrings);
   }
 }

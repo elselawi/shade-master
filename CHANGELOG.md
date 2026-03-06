@@ -1,4 +1,14 @@
 
+### ____2.0.4____
+
+-   implemented hive_ce instead of shared_preferences for better cross-platform compatibility
+
+
+### ____2.0.2____
+
+-   fixed an issue with web history
+
+
 ### ____2.0.0____
 
 -   new feature: history

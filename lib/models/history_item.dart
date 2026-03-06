@@ -40,33 +40,51 @@ class HistoryItem {
   }
 
   factory HistoryItem.fromJson(Map<String, dynamic> json) {
-    var regionsJson = json['regions'] as List;
+    var regionsJson = json['regions'];
     List<List<Region>> loadedRegions = [];
 
-    for (int i = 0; i < regionsJson.length; i++) {
-      var listJson = regionsJson[i] as List;
-      List<Region> currentRegionList = [];
-      for (var regionJson in listJson) {
-        var offsetsJson = regionJson['offsets'] as List;
-        List<NormalizedOffset> offsets = offsetsJson.map((o) {
-          if (o is Map && o.containsKey('nx')) {
-            return NormalizedOffset(Offset(
-                (o['nx'] as num).toDouble(), (o['ny'] as num).toDouble()));
+    if (regionsJson is List) {
+      for (int i = 0; i < regionsJson.length; i++) {
+        var listJson = regionsJson[i];
+        List<Region> currentRegionList = [];
+        if (listJson is List) {
+          for (var regionJson in listJson) {
+            if (regionJson is Map) {
+              var offsetsJson = regionJson['offsets'];
+              if (offsetsJson is List) {
+                List<NormalizedOffset> offsets = [];
+                for (var o in offsetsJson) {
+                  if (o is Map) {
+                    if (o.containsKey('nx')) {
+                      offsets.add(NormalizedOffset(Offset(
+                          (o['nx'] as num).toDouble(),
+                          (o['ny'] as num).toDouble())));
+                    } else if (o.containsKey('dx')) {
+                      // fallback for legacy data that might use 'dx'/'dy'
+                      offsets.add(NormalizedOffset(Offset(
+                          (o['dx'] as num).toDouble(),
+                          (o['dy'] as num).toDouble())));
+                    }
+                  }
+                }
+                currentRegionList.add(Region(offsets));
+              }
+            }
           }
-          // fallback for legacy data that might use 'dx'/'dy'
-          return NormalizedOffset(
-              Offset((o['dx'] as num).toDouble(), (o['dy'] as num).toDouble()));
-        }).toList();
-        currentRegionList.add(Region(offsets));
+        }
+        loadedRegions.add(currentRegionList);
       }
-      loadedRegions.add(currentRegionList);
     }
 
     return HistoryItem(
-      id: json['id'],
-      name: json['name'],
-      timestamp: DateTime.parse(json['timestamp']),
-      imageBytes: base64Decode(json['imageBytes']),
+      id: json['id'] ?? '',
+      name: json['name'] ?? 'Untitled Session',
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'])
+          : DateTime.now(),
+      imageBytes: json['imageBytes'] != null
+          ? base64Decode(json['imageBytes'])
+          : Uint8List(0),
       regions: loadedRegions,
     );
   }
