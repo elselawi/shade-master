@@ -50,7 +50,7 @@ class HistoryService {
       } catch (e) {
         debugPrint("Error decoding history item at index $i: $e");
         debugPrint(
-            "Corrupted data snippet: ${string.length > 100 ? string.substring(0, 100) + "..." : string}");
+            "Corrupted data snippet: ${string.length > 100 ? "${string.substring(0, 100)}..." : string}");
       }
     }
     debugPrint("Successfully loaded ${items.length} items.");
