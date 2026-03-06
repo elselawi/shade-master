@@ -4,88 +4,289 @@
 <head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Shade Master - Shade Matching for Dentists</title>
+	<title>Shade Master | Clinical Precision, Simplified</title>
+	<meta name="description"
+		content="A smart companion for dentists to choose accurate tooth shades for prosthetics with clinical precision." />
+	<!-- Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link
+		href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+		rel="stylesheet">
+	<!-- Scripts -->
 	<script src="https://cdn.tailwindcss.com"></script>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
 	<style>
+		:root {
+			--primary: #2dd4bf;
+			/* Brighter teal for dark mode */
+			--primary-dark: #0f766e;
+			--accent: #fb7185;
+			/* Rose accent */
+			--bg: #030712;
+			/* Deep Obsidian */
+			--text-main: #f8fafc;
+			--text-muted: #94a3b8;
+			--card-bg: rgba(30, 41, 59, 0.4);
+			--card-border: rgba(255, 255, 255, 0.08);
+		}
+
 		body {
-			font-family: "Inter", sans-serif;
-			background: linear-gradient(135deg, #f4fafe, #e0f1ff);
+			font-family: 'Plus Jakarta Sans', sans-serif;
+			background-color: var(--bg);
+			color: var(--text-main);
 			overflow-x: hidden;
+			-webkit-font-smoothing: antialiased;
 		}
 
-		.glass {
-			background: rgba(255, 255, 255, 0.7);
+		h1,
+		h2,
+		.font-display {
+			font-family: 'Outfit', sans-serif;
+		}
+
+		/* Deep Mesh Background */
+		.bg-gradient-mesh {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: -1;
+			background:
+				radial-gradient(at 0% 0%, rgba(45, 212, 191, 0.15) 0px, transparent 50%),
+				radial-gradient(at 100% 100%, rgba(15, 118, 110, 0.1) 0px, transparent 50%),
+				radial-gradient(at 100% 0%, rgba(251, 113, 133, 0.08) 0px, transparent 50%);
+		}
+
+		/* Enhanced Dark Glassmorphism */
+		.glass-card {
+			background: var(--card-bg);
 			backdrop-filter: blur(16px);
-			border: 1px solid rgba(255, 255, 255, 0.4);
+			-webkit-backdrop-filter: blur(16px);
+			border: 1px solid var(--card-border);
+			box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 		}
 
-		.triangle {
-			clip-path: polygon(0 0, 100% 5%, 100% 100%, 0% 100%);
+		.btn-primary {
+			background: var(--primary);
+			color: var(--bg);
+			box-shadow: 0 4px 14px 0 rgba(45, 212, 191, 0.3);
 		}
 
-		.particles::before {
-			content: "";
-			position: absolute;
-			inset: 0;
-			background: url("https://www.transparenttextures.com/patterns/cubes.png");
-			opacity: 0.05;
-			pointer-events: none;
+		.btn-primary:hover {
+			background: #5eead4;
+			box-shadow: 0 6px 20px rgba(45, 212, 191, 0.5);
+			transform: translateY(-1px);
+		}
+
+		.btn-secondary {
+			background: transparent;
+			color: var(--text-main);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.btn-secondary:hover {
+			background: rgba(255, 255, 255, 0.05);
+			border-color: var(--primary);
+		}
+
+		@keyframes fadeInUp {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		.animate-fadeInUp {
+			animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+		}
+
+		.delay-100 {
+			animation-delay: 0.1s;
+		}
+
+		.delay-200 {
+			animation-delay: 0.2s;
+		}
+
+		.delay-300 {
+			animation-delay: 0.3s;
+		}
+
+		/* Mockup Frame */
+		.device-frame {
+			position: relative;
+			border-radius: 3rem;
+			padding: 10px;
+			background: #111827;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+		}
+
+		.device-screen {
+			background: #000;
+			border-radius: 2.4rem;
+			overflow: hidden;
+			aspect-ratio: 9/16;
 		}
 	</style>
 </head>
 
-<body class="relative particles">
-	<!-- Header Section -->
-	<section class="relative w-full triangle">
-		<div class="max-w-6xl mx-auto px-6 py-20 lg:py-28 flex flex-col-reverse lg:flex-row items-center gap-12">
-			<!-- Text -->
-			<div class="lg:w-1/2 z-10">
-				<h1 class="text-5xl font-extrabold text-blue-800 leading-tight mb-4">
-					Shade Master
+<body class="relative min-h-screen">
+	<div class="bg-gradient-mesh"></div>
+
+	<!-- Navigation (Minimal Dark) -->
+	<nav class="w-full py-8 px-6">
+		<div class="max-w-6xl mx-auto flex justify-between items-center">
+			<div class="flex items-center gap-2">
+				<div
+					class="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center text-slate-900 font-bold text-lg">
+					S</div>
+				<span class="font-display font-extrabold text-xl tracking-tight text-white">Shade Master</span>
+			</div>
+			<div class="hidden md:flex gap-8 text-sm font-semibold text-slate-400">
+				<a href="https://blog.apexo.app/?p=26" class="hover:text-teal-400 transition">Case Study</a>
+				<a href="https://github.com/elselawi/shade-master" class="hover:text-teal-400 transition">Source</a>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Hero Section -->
+	<main class="max-w-7xl mx-auto px-6 py-12 md:py-24">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+			<!-- Left Content -->
+			<div class="space-y-8 max-w-xl">
+				<div
+					class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold tracking-wider uppercase animate-fadeInUp">
+					Clinical Precision
+				</div>
+
+				<h1 class="text-6xl md:text-7xl font-extrabold leading-[1.1] text-white animate-fadeInUp delay-100">
+					Perfect tooth matching, <span
+						class="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-teal-200">every
+						time.</span>
 				</h1>
-				<p class="text-lg text-gray-700 mb-6">
-					A smart companion for dentists to choose accurate tooth shades for
-					prosthetics. Built for clinical precision, made for simplicity.
+
+				<p class="text-lg md:text-xl text-slate-400 leading-relaxed animate-fadeInUp delay-200">
+					A streamlined companion for dental professionals. Capture, analyze, and select tooth shades with
+					confidence using our smart matching algorithm.
 				</p>
-				<ul class="mb-6 space-y-2 text-gray-600">
-					<li>🦷 Clinical-grade shade matching</li>
-					<li>📱 Works entirely offline</li>
-					<li>🎯 Trusted by dental professionals</li>
-				</ul>
-				<a href="https://raw.githubusercontent.com/elselawi/shade-master/refs/heads/main/release/shade_master.apk"
-					download
-					class="inline-block mt-4 bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 transition font-semibold">
-					⬇&nbsp;&nbsp;&nbsp;Download APK
-				</a>
-				<a href="https://shade-app.apexo.app" launch
-					class="inline-block mt-4 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-red-700 transition font-semibold">
-					➤&nbsp;&nbsp;&nbsp;Run web app
-				</a>
-				<p class="text-sm mt-2 text-gray-500">
-					Not available on Play Store. Not available on iOS.
-				</p>
+
+				<div class="flex flex-col sm:flex-row items-center gap-4 animate-fadeInUp delay-300">
+					<a href="https://raw.githubusercontent.com/elselawi/shade-master/refs/heads/main/release/shade_master.apk"
+						download
+						class="w-full sm:w-auto px-8 py-4 btn-primary rounded-2xl font-bold flex items-center justify-center gap-3 transition-all">
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+								d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+						</svg>
+						Get App (APK)
+					</a>
+					<a href="https://shade-app.apexo.app"
+						class="w-full sm:w-auto px-8 py-4 btn-secondary rounded-2xl font-bold flex items-center justify-center gap-3 transition-all">
+						Launch Web App
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+								d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+						</svg>
+					</a>
+				</div>
+
+				<!-- Features Pill List -->
+				<div class="grid grid-cols-2 gap-4 pt-4 animate-fadeInUp delay-300">
+					<div class="flex items-start gap-3">
+						<div
+							class="mt-1 w-5 h-5 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-400">
+							<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+								<path
+									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z">
+								</path>
+							</svg>
+						</div>
+						<span class="text-sm font-medium text-slate-400">Fully Offline</span>
+					</div>
+					<div class="flex items-start gap-3">
+						<div
+							class="mt-1 w-5 h-5 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-400">
+							<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+								<path
+									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z">
+								</path>
+							</svg>
+						</div>
+						<span class="text-sm font-medium text-slate-400">GDPR Compliant</span>
+					</div>
+					<div class="flex items-start gap-3">
+						<div
+							class="mt-1 w-5 h-5 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-400">
+							<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+								<path
+									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z">
+								</path>
+							</svg>
+						</div>
+						<span class="text-sm font-medium text-slate-400">Expert Verified</span>
+					</div>
+					<div class="flex items-start gap-3">
+						<div
+							class="mt-1 w-5 h-5 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-400">
+							<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+								<path
+									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z">
+								</path>
+							</svg>
+						</div>
+						<span class="text-sm font-medium text-slate-400">Android Only</span>
+					</div>
+				</div>
 			</div>
 
-			<!-- Image -->
-			<div class="lg:w-1/2 flex justify-center z-10">
-				<div
-					class="w-[280px] h-[560px] rounded-[2rem] glass shadow-xl flex items-center justify-center overflow-hidden">
-					<img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHY5bjd0Z3B2cW42am5mMTRkNnprdzZlY3N2MmpuZzN3cGxoOXlpMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BIUWCDkstC0deY4deo/giphy.gif"
-						alt="Shade Master app screenshot" class="w-full h-full object-cover" />
+			<!-- Right Content - Mockup -->
+			<div class="relative flex justify-center lg:justify-end animate-fadeInUp delay-200">
+				<!-- Decorative glows -->
+				<div class="absolute -top-12 -right-12 w-64 h-64 bg-teal-500/20 rounded-full blur-[100px] opacity-60">
+				</div>
+				<div class="absolute -bottom-24 -left-24 w-64 h-64 bg-rose-500/10 rounded-full blur-[100px] opacity-40">
+				</div>
+
+				<div class="device-frame max-w-[320px] w-full">
+					<div class="device-screen">
+						<img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHY5bjd0Z3B2cW42am5mMTRkNnprdzZlY3N2MmpuZzN3cGxoOXlpMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BIUWCDkstC0deY4deo/giphy.gif"
+							alt="Shade Master app" class="w-full h-full object-cover" />
+					</div>
+					<!-- Device buttons -->
+					<div class="absolute top-24 -left-1 w-1 h-12 bg-slate-700 rounded-r-lg"></div>
+					<div class="absolute top-44 -left-1 w-1 h-12 bg-slate-700 rounded-r-lg"></div>
+					<div class="absolute top-32 -right-1 w-1 h-16 bg-slate-700 rounded-l-lg"></div>
 				</div>
 			</div>
 		</div>
-	</section>
+	</main>
 
 	<!-- Footer -->
-	<footer class="text-center text-gray-500 text-sm py-6">
-		<p>
-			<a href="https://blog.apexo.app/?p=26">Blog post</a>
-			| <a href="https://github.com/elselawi/shade-master">Github Repository</a>
-			| <a href="https://mit-license.org/">MIT License</a>
-		</p>
-		&copy; 2025 Shade Master - Developed by Dr. Ali A. Saleem.
+	<footer class="mt-12 py-12 px-6 border-t border-white/5">
+		<div class="max-w-6xl mx-auto">
+			<div class="flex flex-col md:flex-row justify-between items-center gap-8">
+				<div class="flex flex-col items-center md:items-start gap-2">
+					<div class="text-slate-500 text-sm font-medium">
+						&copy; 2026 Shade Master. Created with care for clinicians.
+					</div>
+					<div class="text-xs text-slate-600">
+						Developed by Dr. Ali A. Saleem.
+					</div>
+				</div>
+				<div class="flex gap-6 text-sm font-semibold text-slate-400">
+					<a href="https://blog.apexo.app/?p=26" class="hover:text-teal-400 transition">Case Study</a>
+					<a href="https://github.com/elselawi/shade-master" class="hover:text-teal-400 transition">GitHub</a>
+					<a href="https://mit-license.org/" class="hover:text-teal-400 transition">License</a>
+				</div>
+			</div>
+		</div>
 	</footer>
 </body>
 
