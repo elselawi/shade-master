@@ -131,7 +131,9 @@ class ShadeMasterState extends State<ShadeMaster> {
   void _onPointerMove(PointerMoveEvent event) {
     if (_activeSelecting == SelectionType.none ||
         !_isDrawing ||
-        _imageSize == null) return;
+        _imageSize == null) {
+      return;
+    }
 
     final normalized = _normalizePointerPosition(event.localPosition);
     if (normalized == null) return;
@@ -271,7 +273,7 @@ class ShadeMasterState extends State<ShadeMaster> {
                 child: _isAnalyzing
                     ? Container(
                         key: const ValueKey('analyzing'),
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                         child: Center(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -291,7 +293,8 @@ class ShadeMasterState extends State<ShadeMaster> {
                                   letterSpacing: 1.2,
                                   shadows: [
                                     Shadow(
-                                      color: Colors.black.withOpacity(0.5),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.5),
                                       blurRadius: 10,
                                     ),
                                   ],
@@ -324,15 +327,15 @@ class ShadeMasterState extends State<ShadeMaster> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -507,16 +510,17 @@ class ShadeMasterState extends State<ShadeMaster> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(
-                      0.5), // Increased opacity for better readability with dark text
+                  color: Colors.white.withValues(
+                      alpha:
+                          0.5), // Increased opacity for better readability with dark text
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -548,9 +552,7 @@ class ShadeMasterState extends State<ShadeMaster> {
 
                           if (newName != null && newName.trim().isNotEmpty) {
                             setState(() {
-                              if (_currentHistoryId == null) {
-                                _currentHistoryId = const Uuid().v4();
-                              }
+                              _currentHistoryId ??= const Uuid().v4();
                               _currentHistoryName = newName.trim();
                             });
                             await _autoSaveIfPossible();
@@ -560,7 +562,7 @@ class ShadeMasterState extends State<ShadeMaster> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
@@ -673,8 +675,8 @@ class ShadeMasterState extends State<ShadeMaster> {
                   return Container(
                     decoration: BoxDecoration(
                       color: result.winner
-                          ? Colors.green.withOpacity(0.05)
-                          : Colors.grey.withOpacity(0.05),
+                          ? Colors.green.withValues(alpha: 0.05)
+                          : Colors.grey.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: result.winner

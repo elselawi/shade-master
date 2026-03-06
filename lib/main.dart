@@ -325,8 +325,8 @@ class _MainPageState extends State<MainPage> {
                                                     .strokeRoundedDelete02,
                                                 onPressed: () =>
                                                     _deleteHistoryItem(item),
-                                                color:
-                                                    Colors.red.withOpacity(0.8),
+                                                color: Colors.red
+                                                    .withValues(alpha: 0.8),
                                                 size: 24,
                                                 iconSize: 14,
                                               ),
@@ -418,7 +418,7 @@ class _CircleIconButton extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: color ?? Colors.black.withOpacity(0.3),
+            color: color ?? Colors.black.withValues(alpha: 0.3),
           ),
           child: Center(
             child: HugeIcon(

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shadesmaster/models/history_item.dart';
 
@@ -43,7 +44,7 @@ class HistoryService {
         final map = jsonDecode(string);
         items.add(HistoryItem.fromJson(map));
       } catch (e) {
-        print("Error decoding history item: $e");
+        debugPrint("Error decoding history item: $e");
       }
     }
     return items;

@@ -1,6 +1,6 @@
 # Shade Master
 
-Android flutter application to help dentist pick shades from a shade guide.
+Android/Web flutter application to help dentist pick shades from a shade guide.
 
 ## How to use it
 
