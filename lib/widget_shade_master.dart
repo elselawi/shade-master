@@ -2,9 +2,11 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:shadesmaster/analysis/auto_selection.dart';
 import 'package:shadesmaster/analysis/analyze.dart';
 import 'package:shadesmaster/drawings.dart';
 import 'package:shadesmaster/utils/int_to_letter.dart';
+import 'package:shadesmaster/utils/unit_8_img.dart';
 import 'package:shadesmaster/widget_pill.dart';
 import 'package:shadesmaster/widget_selection_painter.dart';
 import 'package:shadesmaster/widget_toolbar_button.dart';
@@ -48,6 +50,9 @@ class ShadeMasterState extends State<ShadeMaster> {
   bool _isAnalyzing = false;
   bool _showAreas = true;
   Size? _imageSize;
+  Unit8Img? _unit8Img;
+  DateTime? _lastDownTime;
+  Offset? _lastDownPosition;
 
   @override
   void initState() {
@@ -116,6 +121,9 @@ class ShadeMasterState extends State<ShadeMaster> {
       final normalized = _normalizePointerPosition(event.localPosition);
       if (normalized == null) return;
 
+      _lastDownTime = DateTime.now();
+      _lastDownPosition = event.localPosition;
+
       _isDrawing = true;
       setState(
         () => _strokeNotifier.value = Stroke([normalized]),
@@ -152,6 +160,19 @@ class ShadeMasterState extends State<ShadeMaster> {
 
     if (_isDrawing && _pointers == 0) {
       _isDrawing = false;
+
+      final duration =
+          DateTime.now().difference(_lastDownTime ?? DateTime.now());
+      final distance =
+          (event.localPosition - (_lastDownPosition ?? event.localPosition))
+              .distance;
+
+      if (duration.inMilliseconds < 300 && distance < 10) {
+        // This is a tap!
+        _handleTap(event.localPosition);
+        return;
+      }
+
       if (_strokeNotifier.value.offsets.length > 2) {
         final stroke = Stroke(_strokeNotifier.value.offsets);
         setState(() {
@@ -164,6 +185,30 @@ class ShadeMasterState extends State<ShadeMaster> {
           _strokeNotifier.value = Stroke([]);
         });
       }
+    }
+  }
+
+  Future<void> _handleTap(Offset localOffset) async {
+    final normalized = _normalizePointerPosition(localOffset);
+    if (normalized == null) return;
+
+    setState(() => _isAnalyzing = true);
+
+    try {
+      _unit8Img ??= await loadUnit8ImgFromBytes(widget.img);
+      final region = findSimilarRegion(_unit8Img!, normalized);
+
+      if (region.offsets.isNotEmpty) {
+        setState(() {
+          _regions.add(region);
+          _strokeNotifier.value = Stroke([]);
+        });
+        _autoSaveIfPossible();
+      } else {
+        setState(() => _strokeNotifier.value = Stroke([]));
+      }
+    } finally {
+      setState(() => _isAnalyzing = false);
     }
   }
 
@@ -403,7 +448,7 @@ class ShadeMasterState extends State<ShadeMaster> {
                         ToolbarButton(
                           icon: HugeIcon(
                               icon: HugeIcons.strokeRoundedDentalTooth),
-                          label: "Draw Teeth",
+                          label: "Select Teeth",
                           isActive: _activeSelecting == SelectionType.teeth,
                           onPress: () {
                             setState(() {
@@ -419,7 +464,7 @@ class ShadeMasterState extends State<ShadeMaster> {
                         ToolbarButton(
                           icon: HugeIcon(
                               icon: HugeIcons.strokeRoundedPinLocation02),
-                          label: "Draw Shades",
+                          label: "Select Shades",
                           isActive: _activeSelecting == SelectionType.shades,
                           onPress: () {
                             setState(() {
