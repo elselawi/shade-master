@@ -9,7 +9,7 @@ You need to take a photo with your phone that shows both the teeth and the shade
 Then using the application you should select the teeth, and select the shades, the application would tell you which shade is closest.
 
 DEMO:
-![Gif image](https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnd5Y3cxcXNhbHRqc2Z2bTJieGVvcjZ1ZnAwMGRod2p2M2swcGY4aCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/A2ciVtQU9n0twS0Zxj/giphy.gif)
+![Gif image](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHY5bjd0Z3B2cW42am5mMTRkNnprdzZlY3N2MmpuZzN3cGxoOXlpMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/BIUWCDkstC0deY4deo/giphy.gif)
 
 ## Technical info
 
