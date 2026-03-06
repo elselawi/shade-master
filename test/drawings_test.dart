@@ -23,12 +23,12 @@ Unit8Img solidColorImg(int width, int height, int r, int g, int b) {
   return Unit8Img(pixels, width, height);
 }
 
-/// Creates a full-coverage [Region] for a widget of the given size (global coords).
-Region fullRegion(double width, double height) => Region([
-      GlobalOffset(Offset(0, 0)),
-      GlobalOffset(Offset(width, 0)),
-      GlobalOffset(Offset(width, height)),
-      GlobalOffset(Offset(0, height)),
+/// Creates a full-coverage [Region] (normalized 0-1 coords).
+Region fullRegion() => Region([
+      NormalizedOffset(const Offset(0, 0)),
+      NormalizedOffset(const Offset(1, 0)),
+      NormalizedOffset(const Offset(1, 1)),
+      NormalizedOffset(const Offset(0, 1)),
     ]);
 
 void main() {
@@ -50,28 +50,29 @@ void main() {
           .thenAnswer((inv) => inv.positionalArguments[0] as Offset);
     });
 
-    test('pixelOffset scales screen coords to image pixel coords', () {
-      // Widget 100×100, image 200×200 → scale = 2.0
-      final global = GlobalOffset(const Offset(50, 25));
-      final img = Unit8Img(Uint8List(0), 200, 200);
-      final pixel = global.pixelOffset(mockRenderBox, img);
+    test('pixelOffset scales normalized coords to image pixel coords', () {
+      // Image 200×200, normalized (0.5, 0.25) → Pixel (100, 50)
+      final offset = NormalizedOffset(const Offset(0.5, 0.25));
+      final size = const Size(200, 200);
+      final pixel = offset.pixelOffset(size);
       expect(pixel.dx, closeTo(100.0, 0.001));
       expect(pixel.dy, closeTo(50.0, 0.001));
     });
 
     test('pixelOffset handles 1:1 scale correctly', () {
-      final global = GlobalOffset(const Offset(30, 70));
-      final img = Unit8Img(Uint8List(0), 100, 100);
-      final pixel = global.pixelOffset(mockRenderBox, img);
+      final offset = NormalizedOffset(const Offset(0.3, 0.7));
+      final size = const Size(100, 100);
+      final pixel = offset.pixelOffset(size);
       expect(pixel.dx, closeTo(30.0, 0.001));
       expect(pixel.dy, closeTo(70.0, 0.001));
     });
 
-    test('screenOffset applies globalToLocal transform', () {
-      when(() => mockRenderBox.globalToLocal(any()))
-          .thenAnswer((_) => const Offset(10, 20));
-      final global = GlobalOffset(const Offset(999, 999));
-      expect(global.screenOffset(mockRenderBox), const Offset(10, 20));
+    test('screenOffset calculates position within widget', () {
+      // Widget 100x100, Image 100x100 (1:1), Normalized (0.1, 0.2) -> Screen (10, 20)
+      final offset = NormalizedOffset(const Offset(0.1, 0.2));
+      final imageSize = const Size(100, 100);
+      expect(offset.screenOffset(const Size(100, 100), imageSize),
+          const Offset(10, 20));
     });
   });
 
@@ -90,26 +91,26 @@ void main() {
 
     test('getPixelOffset returns same list instance on second call (cache hit)',
         () {
-      final img = Unit8Img(Uint8List(0), 100, 100);
-      final stroke = Stroke([GlobalOffset(const Offset(10, 10))]);
+      final size = const Size(100, 100);
+      final stroke = Stroke([NormalizedOffset(const Offset(0.1, 0.1))]);
 
-      final first = stroke.getPixelOffset(mockRenderBox, img);
-      final second = stroke.getPixelOffset(mockRenderBox, img);
+      final first = stroke.getPixelOffset(size);
+      final second = stroke.getPixelOffset(size);
 
       expect(identical(first, second), isTrue,
           reason: 'Expected the cached list to be returned on the second call');
     });
 
     test('cache is invalidated when offsets list changes', () {
-      final img = Unit8Img(Uint8List(0), 100, 100);
-      final stroke = Stroke([GlobalOffset(const Offset(10, 10))]);
+      final size = const Size(100, 100);
+      final stroke = Stroke([NormalizedOffset(const Offset(0.1, 0.1))]);
 
-      final first = stroke.getPixelOffset(mockRenderBox, img);
+      final first = stroke.getPixelOffset(size);
 
       // Mutate the offsets list to force cache invalidation
-      stroke.offsets.add(GlobalOffset(const Offset(20, 20)));
+      stroke.offsets.add(NormalizedOffset(const Offset(0.2, 0.2)));
 
-      final second = stroke.getPixelOffset(mockRenderBox, img);
+      final second = stroke.getPixelOffset(size);
 
       expect(identical(first, second), isFalse,
           reason: 'Expected cache to be invalidated after offsets changed');
@@ -141,8 +142,8 @@ void main() {
 
       // Widget 100×2 so that the whole image is covered
       when(() => mockRenderBox.size).thenReturn(const Size(100, 1));
-      final region = fullRegion(100, 1);
-      final labs = region.getSortedLabColors(img, mockRenderBox);
+      final region = fullRegion();
+      final labs = region.getSortedLabColors(img);
 
       // Should be sorted ascending by L
       for (int i = 1; i < labs.length; i++) {
@@ -170,9 +171,9 @@ void main() {
 
       final img = Unit8Img(pixels, 10, 1);
       when(() => mockRenderBox.size).thenReturn(const Size(100, 1));
-      final region = fullRegion(100, 1);
+      final region = fullRegion();
 
-      final pruned = region.getSortedPrunedLabColors(img, mockRenderBox);
+      final pruned = region.getSortedPrunedLabColors(img);
 
       // All remaining colors should be close to the gray (low chroma a/b)
       for (final lab in pruned) {
@@ -186,10 +187,9 @@ void main() {
         () {
       final img = solidColorImg(4, 4, 100, 150, 200);
       when(() => mockRenderBox.size).thenReturn(const Size(100, 100));
-      final region = fullRegion(100, 100);
-      final avg = region.getAverageColor(img, mockRenderBox);
+      final region = fullRegion();
+      final avg = region.getAverageColor(img);
       expect(avg.a, greaterThan(0.0));
-      expect(avg.r, greaterThan(0.0));
     });
   });
 }

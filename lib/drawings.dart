@@ -10,44 +10,50 @@ import 'package:shadesmaster/utils/unit_8_img.dart';
 /// Each class also contains the manipulation on the
 /// drawn pixels and on the colors of those pixels
 
-class GlobalOffset {
-  Offset globalOffset;
-  GlobalOffset(this.globalOffset);
-  Offset screenOffset(RenderBox renderBox) {
-    return renderBox.globalToLocal(globalOffset);
+class NormalizedOffset {
+  /// Coordinates from 0.0 to 1.0 relative to image dimensions
+  final Offset normalized;
+  NormalizedOffset(this.normalized);
+
+  Offset screenOffset(Size parentSize, Size imageSize) {
+    final fittedSizes = applyBoxFit(BoxFit.contain, imageSize, parentSize);
+    final destinationSize = fittedSizes.destination;
+
+    final left = (parentSize.width - destinationSize.width) / 2.0;
+    final top = (parentSize.height - destinationSize.height) / 2.0;
+
+    return Offset(
+      left + normalized.dx * destinationSize.width,
+      top + normalized.dy * destinationSize.height,
+    );
   }
 
-  Offset pixelOffset(RenderBox renderBox, Unit8Img unit8Img) {
-    final localOffset = screenOffset(renderBox);
-    final widgetSize = renderBox.size;
-
-    final imageWidth = unit8Img.width.toDouble();
-    final imageHeight = unit8Img.height.toDouble();
-
-    final scaleX = imageWidth / widgetSize.width;
-    final scaleY = imageHeight / widgetSize.height;
-
-    return Offset(localOffset.dx * scaleX, localOffset.dy * scaleY);
+  Offset pixelOffset(Size imageSize) {
+    return Offset(
+      normalized.dx * imageSize.width,
+      normalized.dy * imageSize.height,
+    );
   }
 }
 
 class Stroke {
-  List<GlobalOffset> offsets;
+  List<NormalizedOffset> offsets;
   Stroke(this.offsets);
 
   int? _cacheKey;
   List<Offset>? _cachedPixelOffset;
   List<Offset>? _cachedScreenOffset;
 
-  List<Offset> getPixelOffset(RenderBox renderBox, Unit8Img unit8Img) {
-    final key = listHash(offsets);
+  List<Offset> getPixelOffset(Size imageSize) {
+    final key =
+        Object.hash(listHash(offsets), imageSize.width, imageSize.height);
     if (_cacheKey == key && _cachedPixelOffset != null) {
       return _cachedPixelOffset!;
     }
 
     final List<Offset> result = [];
-    for (var globalOffset in offsets) {
-      result.add(globalOffset.pixelOffset(renderBox, unit8Img));
+    for (var offset in offsets) {
+      result.add(offset.pixelOffset(imageSize));
     }
 
     _cacheKey = key;
@@ -55,15 +61,15 @@ class Stroke {
     return result;
   }
 
-  List<Offset> getScreenOffset(RenderBox renderBox) {
-    final key = listHash(offsets);
+  List<Offset> getScreenOffset(Size parentSize, Size imageSize) {
+    final key = Object.hash(listHash(offsets), parentSize, imageSize);
     if (_cacheKey == key && _cachedScreenOffset != null) {
       return _cachedScreenOffset!;
     }
 
     final List<Offset> result = [];
-    for (var globalOffset in offsets) {
-      result.add(globalOffset.screenOffset(renderBox));
+    for (var offset in offsets) {
+      result.add(offset.screenOffset(parentSize, imageSize));
     }
 
     _cacheKey = key;
@@ -81,45 +87,45 @@ class Region extends Stroke {
   List<LabColor>? _cachedSortedPrunedLabs;
   Color? _cachedAverage;
 
-  List<Color> getColors(Unit8Img unit8Img, RenderBox renderBox) {
-    final key = listHash(offsets);
+  List<Color> getColors(Unit8Img unit8Img) {
+    final key = Object.hash(listHash(offsets), unit8Img.width, unit8Img.height);
     if (_cacheKey == key && _cachedColors != null) {
       return _cachedColors!;
     }
-    final result = getAllColorsFromRegion(unit8Img, renderBox, this);
+    final result = getAllColorsFromRegion(unit8Img, this);
     _cachedColors = result;
     return result;
   }
 
-  List<LabColor> getLabColors(Unit8Img unit8Img, RenderBox renderBox) {
-    final key = listHash(offsets);
+  List<LabColor> getLabColors(Unit8Img unit8Img) {
+    final key = Object.hash(listHash(offsets), unit8Img.width, unit8Img.height);
     if (_cacheKey == key && _cachedLabs != null) {
       return _cachedLabs!;
     }
-    final result =
-        getColors(unit8Img, renderBox).map((c) => rgbToLab(c)).toList();
+    final result = getColors(unit8Img).map((c) => rgbToLab(c)).toList();
     _cachedLabs = result;
     return result;
   }
 
-  List<LabColor> getSortedLabColors(Unit8Img unit8Img, RenderBox renderBox) {
-    final key = listHash(offsets);
+  List<LabColor> getSortedLabColors(Unit8Img unit8Img) {
+    final key = Object.hash(listHash(offsets), unit8Img.width, unit8Img.height);
     if (_cacheKey == key && _cachedSortedLabs != null) {
       return _cachedSortedLabs!;
     }
-    final result = getLabColors(unit8Img, renderBox)
+    final result = getLabColors(unit8Img)
       ..sort((l1, l2) => (l1.l - l2.l).toInt());
     _cachedSortedLabs = result;
     return result;
   }
 
-  List<LabColor> getSortedPrunedLabColors(
-      Unit8Img unit8Img, RenderBox renderBox) {
-    final key = listHash(offsets);
+  List<LabColor> getSortedPrunedLabColors(Unit8Img unit8Img) {
+    final key = Object.hash(listHash(offsets), unit8Img.width, unit8Img.height);
     if (_cacheKey == key && _cachedSortedPrunedLabs != null) {
       return _cachedSortedPrunedLabs!;
     }
-    final justSorted = getSortedLabColors(unit8Img, renderBox);
+    final justSorted = getSortedLabColors(unit8Img);
+    if (justSorted.isEmpty) return [];
+
     final medianColor = justSorted[(justSorted.length / 2).floor()];
     final result = justSorted.where((labColor) {
       final delta = deltaE(labColor, medianColor);
@@ -129,12 +135,14 @@ class Region extends Stroke {
     return result;
   }
 
-  Color getAverageColor(Unit8Img unit8Img, RenderBox renderBox) {
-    final key = listHash(offsets);
+  Color getAverageColor(Unit8Img unit8Img) {
+    final key = Object.hash(listHash(offsets), unit8Img.width, unit8Img.height);
     if (_cacheKey == key && _cachedAverage != null) {
       return _cachedAverage!;
     }
-    final result = simpleAverageColor(getColors(unit8Img, renderBox));
+    final colors = getColors(unit8Img);
+    if (colors.isEmpty) return Colors.transparent;
+    final result = simpleAverageColor(colors);
     _cachedAverage = result;
     return result;
   }

@@ -7,7 +7,7 @@ class SelectionPainter extends CustomPainter {
   final List<Region> shadesRegions;
   final Stroke currentStroke;
   final SelectionType activeType;
-  final RenderBox renderBox;
+  final Size imageSize;
   final double resolution;
 
   SelectionPainter({
@@ -15,7 +15,7 @@ class SelectionPainter extends CustomPainter {
     required this.shadesRegions,
     required this.currentStroke,
     required this.activeType,
-    required this.renderBox,
+    required this.imageSize,
     required this.resolution,
   });
 
@@ -42,7 +42,7 @@ class SelectionPainter extends CustomPainter {
     // Draw teeth regions with numbers
     for (int i = 0; i < teethRegions.length; i++) {
       final region = teethRegions[i];
-      final screenOffsets = region.getScreenOffset(renderBox);
+      final screenOffsets = region.getScreenOffset(size, imageSize);
 
       final path = Path()..addPolygon(screenOffsets, true);
       canvas.drawPath(path, paintTeeth);
@@ -63,7 +63,7 @@ class SelectionPainter extends CustomPainter {
     // Draw shades regions with letters
     for (int i = 0; i < shadesRegions.length; i++) {
       final region = shadesRegions[i];
-      final screenOffsets = region.getScreenOffset(renderBox);
+      final screenOffsets = region.getScreenOffset(size, imageSize);
       final path = Path()..addPolygon(screenOffsets, true);
       canvas.drawPath(path, paintShades);
       canvas.drawPath(path, strokeShades);
@@ -87,7 +87,7 @@ class SelectionPainter extends CustomPainter {
           .withValues(alpha: 0.5)
       ..style = PaintingStyle.fill;
 
-    for (final point in currentStroke.getScreenOffset(renderBox)) {
+    for (final point in currentStroke.getScreenOffset(size, imageSize)) {
       canvas.drawCircle(point, 5 / resolution, currentPaint);
     }
   }

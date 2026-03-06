@@ -20,8 +20,7 @@ import 'package:shadesmaster/utils/unit_8_img.dart';
 /// [height] Height of the image in pixels
 ///
 /// Returns a list of unique Color objects found within the region
-List<Color> getAllColorsFromRegion(
-    Unit8Img unit8Img, RenderBox renderBox, Region region) {
+List<Color> getAllColorsFromRegion(Unit8Img unit8Img, Region region) {
   final pixels = unit8Img.pixels;
   final width = unit8Img.width;
   final height = unit8Img.height;
@@ -36,7 +35,8 @@ List<Color> getAllColorsFromRegion(
 
   final List<Color> extractedColors = <Color>[];
 
-  final pixelOffsets = region.getPixelOffset(renderBox, unit8Img);
+  final pixelOffsets =
+      region.getPixelOffset(Size(width.toDouble(), height.toDouble()));
 
   // Calculate bounding box of the region
   final boundingBox = calculateBoundingBox(pixelOffsets);

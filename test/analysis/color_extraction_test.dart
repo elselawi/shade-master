@@ -139,12 +139,12 @@ void main() {
     test('returns empty list for image with no pixels', () {
       final emptyImg = Unit8Img(Uint8List(0), 0, 0);
       final region = Region([
-        GlobalOffset(const Offset(0, 0)),
-        GlobalOffset(const Offset(10, 0)),
-        GlobalOffset(const Offset(10, 10)),
-        GlobalOffset(const Offset(0, 10)),
+        NormalizedOffset(const Offset(0, 0)),
+        NormalizedOffset(const Offset(1, 0)),
+        NormalizedOffset(const Offset(1, 1)),
+        NormalizedOffset(const Offset(0, 1)),
       ]);
-      expect(getAllColorsFromRegion(emptyImg, mockRenderBox, region), isEmpty);
+      expect(getAllColorsFromRegion(emptyImg, region), isEmpty);
     });
 
     test('returns empty list for region with no offsets', () {
@@ -169,23 +169,22 @@ void main() {
       ]);
       final img = Unit8Img(pixels, 2, 2);
       final emptyRegion = Region([]);
-      expect(getAllColorsFromRegion(img, mockRenderBox, emptyRegion), isEmpty);
+      expect(getAllColorsFromRegion(img, emptyRegion), isEmpty);
     });
 
     test('extracts color from 1×1 image with full-coverage region', () {
       // 1×1 blue pixel
       final pixels = Uint8List.fromList([0, 0, 255, 255]);
       final img = Unit8Img(pixels, 1, 1);
-      // Widget is 100×100, image is 1×1 → scaleX = scaleY = 0.01
-      // Region covers the full widget (0-100), pixel coords from (0,0) to (1,1)
-      when(() => mockRenderBox.size).thenReturn(const Size(100, 100));
+
+      // Region covers the full image (0.0 to 1.0)
       final region = Region([
-        GlobalOffset(const Offset(0, 0)),
-        GlobalOffset(const Offset(100, 0)),
-        GlobalOffset(const Offset(100, 100)),
-        GlobalOffset(const Offset(0, 100)),
+        NormalizedOffset(const Offset(0, 0)),
+        NormalizedOffset(const Offset(1, 0)),
+        NormalizedOffset(const Offset(1, 1)),
+        NormalizedOffset(const Offset(0, 1)),
       ]);
-      final colors = getAllColorsFromRegion(img, mockRenderBox, region);
+      final colors = getAllColorsFromRegion(img, region);
       expect(colors, isNotEmpty);
       // Should extract blue
       expect(colors.first.b, closeTo(1.0, 0.01));

@@ -35,7 +35,6 @@ Future<List<ShadeResult>> analyze(
   List<Region> teethRegions,
   List<Region> shadesRegions,
   Uint8List img,
-  RenderBox renderBox,
 ) async {
   // load the image to get all pixel data
   final unit8Img = await loadUnit8ImgFromBytes(img);
@@ -43,8 +42,7 @@ Future<List<ShadeResult>> analyze(
   // extract all dental colors into a single palette
   final List<LabColor> dentalColors = [];
   for (var toothRegion in teethRegions) {
-    dentalColors
-        .addAll(toothRegion.getSortedPrunedLabColors(unit8Img, renderBox));
+    dentalColors.addAll(toothRegion.getSortedPrunedLabColors(unit8Img));
   }
 
   // then sort this one palette
@@ -54,8 +52,7 @@ Future<List<ShadeResult>> analyze(
   // find average number of colors in a shade region
   int totalLength = 0;
   for (var shadeRegion in shadesRegions) {
-    totalLength =
-        totalLength + shadeRegion.getColors(unit8Img, renderBox).length;
+    totalLength = totalLength + shadeRegion.getColors(unit8Img).length;
   }
   final averageShadeSize = (totalLength / shadesRegions.length).toInt();
 
@@ -64,8 +61,8 @@ Future<List<ShadeResult>> analyze(
 
   final List<double> deltas = [];
   for (var shadeRegion in shadesRegions) {
-    deltas.add(deltaGroups(dentalColorsSample,
-        shadeRegion.getSortedPrunedLabColors(unit8Img, renderBox)));
+    deltas.add(deltaGroups(
+        dentalColorsSample, shadeRegion.getSortedPrunedLabColors(unit8Img)));
   }
 
   final winner = deltas.reduce((a, b) => a < b ? a : b);
@@ -77,7 +74,7 @@ Future<List<ShadeResult>> analyze(
       ShadeResult(
         intToLetter(i + 1),
         deltas[i],
-        shadesRegions[i].getAverageColor(unit8Img, renderBox),
+        shadesRegions[i].getAverageColor(unit8Img),
         deltas[i] == winner,
       ),
     );
