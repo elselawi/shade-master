@@ -35,28 +35,61 @@ class ShadeMasterState extends State<ShadeMaster> {
   List<Region> get _regions => _allRegions[currentRegionIndex];
   int get currentRegionIndex => _activeSelecting == SelectionType.teeth ? 0 : 1;
 
-  void _onPanStart(DragStartDetails details) {
+  int _pointers = 0;
+  bool _isDrawing = false;
+
+  void _onPointerDown(PointerDownEvent event) {
     if (_activeSelecting == SelectionType.none) return;
-    setState(
-      () => _strokeNotifier.value =
-          Stroke([GlobalOffset(details.globalPosition)]),
-    );
+    _pointers++;
+
+    if (_pointers == 1) {
+      _isDrawing = true;
+      setState(
+        () => _strokeNotifier.value = Stroke([GlobalOffset(event.position)]),
+      );
+    } else {
+      _isDrawing = false;
+      setState(
+        () => _strokeNotifier.value = Stroke([]),
+      );
+    }
   }
 
-  void _onPanUpdate(DragUpdateDetails details) {
-    if (_activeSelecting == SelectionType.none) return;
+  void _onPointerMove(PointerMoveEvent event) {
+    if (_activeSelecting == SelectionType.none || !_isDrawing) return;
 
     final newOffsets = List<GlobalOffset>.from(_strokeNotifier.value.offsets)
-      ..add(GlobalOffset(details.globalPosition));
+      ..add(GlobalOffset(event.position));
 
     _strokeNotifier.value = Stroke(newOffsets);
   }
 
-  void _onPanEnd(DragEndDetails details) {
+  void _onPointerUp(PointerUpEvent event) {
+    _pointers--;
+    if (_pointers < 0) _pointers = 0;
     if (_activeSelecting == SelectionType.none) return;
-    final stroke = Stroke(_strokeNotifier.value.offsets);
+
+    if (_isDrawing && _pointers == 0) {
+      _isDrawing = false;
+      if (_strokeNotifier.value.offsets.length > 2) {
+        final stroke = Stroke(_strokeNotifier.value.offsets);
+        setState(() {
+          _regions.add(Region(stroke.offsets));
+          _strokeNotifier.value = Stroke([]);
+        });
+      } else {
+        setState(() {
+          _strokeNotifier.value = Stroke([]);
+        });
+      }
+    }
+  }
+
+  void _onPointerCancel(PointerCancelEvent event) {
+    _pointers--;
+    if (_pointers < 0) _pointers = 0;
+    _isDrawing = false;
     setState(() {
-      _regions.add(Region(stroke.offsets));
       _strokeNotifier.value = Stroke([]);
     });
   }
@@ -72,7 +105,7 @@ class ShadeMasterState extends State<ShadeMaster> {
               minScale: 0.5,
               transformationController: transformationController,
               panEnabled: _activeSelecting == SelectionType.none,
-              scaleEnabled: _activeSelecting == SelectionType.none,
+              scaleEnabled: true,
               onInteractionEnd: (_) {
                 setState(() {
                   scale = transformationController.value.getMaxScaleOnAxis();
@@ -88,10 +121,12 @@ class ShadeMasterState extends State<ShadeMaster> {
                   )),
                   Positioned.fill(
                     child: _showAreas
-                        ? GestureDetector(
-                            onPanStart: _onPanStart,
-                            onPanUpdate: _onPanUpdate,
-                            onPanEnd: _onPanEnd,
+                        ? Listener(
+                            onPointerDown: _onPointerDown,
+                            onPointerMove: _onPointerMove,
+                            onPointerUp: _onPointerUp,
+                            onPointerCancel: _onPointerCancel,
+                            behavior: HitTestBehavior.translucent,
                             child: IgnorePointer(
                               ignoring: _activeSelecting == SelectionType.none,
                               child: LayoutBuilder(
